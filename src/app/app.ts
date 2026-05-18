@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewChecked } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,13 @@ interface EventTicket {
   totalTickets: number;
   availableTickets: number;
   isSoldOut: boolean;
+  price?: number; 
+  category?: string;
+}
+
+interface CartItem {
+  event: EventTicket;
+  quantity: number;
 }
 
 @Component({
@@ -17,45 +24,47 @@ interface EventTicket {
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-colors duration-300 selection:bg-rose-500/30 relative overflow-x-hidden">
+    <div [style.zoom]="fonteGrande ? '1.1' : '1'" 
+         [ngClass]="altoContraste ? 'contrast-125 saturate-150 brightness-95' : ''"
+         class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans transition-all duration-300 relative overflow-x-hidden pb-20">
       
-      <nav class="fixed top-0 w-full z-[100] bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/50 transition-all">
+      <nav class="fixed top-0 w-full z-[100] bg-white/95 dark:bg-slate-950/90 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/50 transition-all shadow-sm">
         <div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10 h-20 flex items-center justify-between gap-4">
           
-          <div class="flex items-center gap-2.5 shrink-0 cursor-pointer group">
-            <div class="w-9 h-9 bg-rose-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-white">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
-              </svg>
+          <div class="flex items-center gap-2.5 shrink-0 cursor-pointer group" (click)="termoBusca = ''; categoriaAtiva = 'Todos'">
+            <div class="w-9 h-9 bg-rose-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-lg shadow-rose-600/20">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
             </div>
             <h1 class="text-2xl font-black tracking-tighter text-slate-950 dark:text-white hidden sm:block">BAZA<span class="text-rose-600 dark:text-rose-500">TICKET</span></h1>
           </div>
           
           <div class="hidden md:flex flex-1 max-w-3xl items-center gap-2">
             <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-5 py-2.5 w-full focus-within:ring-2 focus-within:ring-rose-500 transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-slate-400 dark:text-slate-500 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
-              <input type="text" placeholder="Busque experiências..." class="bg-transparent border-none outline-none text-sm w-full text-slate-950 dark:text-white placeholder-slate-500 dark:placeholder-slate-600">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-slate-400 mr-2"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
+              <input [(ngModel)]="termoBusca" type="text" placeholder="Busque shows, teatros, experiências..." class="bg-transparent border-none outline-none text-sm w-full text-slate-950 dark:text-white placeholder-slate-500">
             </div>
-            
-            <button class="shrink-0 flex items-center gap-2 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-5 py-2.5 rounded-full text-sm font-semibold hover:border-rose-500 dark:hover:border-rose-500 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-rose-600 dark:text-rose-400"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-              São Paulo, SP
-            </button>
           </div>
 
           <div class="flex items-center gap-4 shrink-0">
+            <button (click)="isCartOpen = true" class="relative p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 transition-colors focus:outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
+              <span *ngIf="carrinho.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">{{ getQuantidadeCarrinho() }}</span>
+            </button>
+
             <ng-container *ngIf="!isLoggedIn">
-              <button (click)="isLoginOpen = true" class="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">Entrar</button>
-              <button (click)="isLoginOpen = true" class="bg-rose-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-rose-700 transition-all active:scale-95 shadow-sm">Criar Conta</button>
+              <button (click)="abrirModal('login')" class="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-rose-600 hidden sm:block">Entrar</button>
+              <button (click)="abrirModal('register')" class="bg-rose-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-rose-700 transition-all active:scale-95 shadow-sm">Criar Conta</button>
             </ng-container>
 
             <ng-container *ngIf="isLoggedIn">
               <span class="hidden lg:block text-sm font-bold text-slate-600 dark:text-slate-400">Olá, Allan</span>
-              <div class="w-10 h-10 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full border-2 border-white dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer relative group">
+              <div class="w-9 h-9 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full shadow-md flex items-center justify-center cursor-pointer relative group">
                 <span class="text-white font-bold text-sm">A</span>
                 <div class="absolute top-full right-0 mt-3 w-40 bg-white dark:bg-slate-900 rounded-xl shadow-xl p-2 border border-slate-100 dark:border-slate-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
-                  <button class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300">Perfil VIP</button>
-                  <button (click)="fazerLogout()" class="w-full text-left p-2 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg text-sm text-red-600 font-bold">Sair</button>
+                  <button (click)="mostrarAviso('Configurações de perfil em breve!')" class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm">Meu Perfil</button>
+                  <button (click)="mostrarAviso('Página de Meus Ingressos sendo carregada...')" class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm">Meus Ingressos</button>
+                  <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
+                  <button (click)="fazerLogout()" class="w-full text-left p-2 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg text-sm text-red-600 font-bold">Sair da Conta</button>
                 </div>
               </div>
             </ng-container>
@@ -63,215 +72,424 @@ interface EventTicket {
         </div>
       </nav>
 
-      <button class="fixed top-24 left-0 z-40 bg-rose-600 text-white p-2.5 rounded-r-xl shadow-xl hover:pr-5 hover:bg-rose-700 transition-all focus-visible:ring-4 focus-visible:ring-rose-500/50 group flex items-center" aria-label="Opções de Acessibilidade">
+      <button (click)="isAcessibilidadeOpen = !isAcessibilidadeOpen" class="fixed top-24 left-0 z-40 bg-slate-900 dark:bg-rose-600 text-white p-2.5 rounded-r-xl shadow-xl hover:pr-4 transition-all group flex items-center outline-none">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 8.25a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15.75v-1.5a2.25 2.25 0 0 1 2.25-2.25h3a2.25 2.25 0 0 1 2.25 2.25v1.5m-9 0h9m-9 0a2.25 2.25 0 0 0 2.25 2.25h4.5a2.25 2.25 0 0 0 2.25-2.25m-9 0V18m9-2.25V18" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" /></svg>
-        <span class="hidden group-hover:inline-block ml-2 text-sm font-bold">Acessibilidade</span>
       </button>
 
-      <header class="relative w-full h-[80vh] pt-20 border-b border-slate-200 dark:border-slate-800/50 overflow-hidden">
+      <div *ngIf="isAcessibilidadeOpen" class="fixed top-24 left-14 z-[200] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-4 animate-fade-in w-64">
+        <h4 class="text-sm font-black text-slate-900 dark:text-white mb-3">Acessibilidade</h4>
+        
+        <label class="flex items-center justify-between cursor-pointer mb-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Alto Contraste</span>
+          <input type="checkbox" [(ngModel)]="altoContraste" class="sr-only peer">
+          <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600 relative"></div>
+        </label>
+
+        <label class="flex items-center justify-between cursor-pointer p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg">
+          <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">Fonte Maior</span>
+          <input type="checkbox" [(ngModel)]="fonteGrande" class="sr-only peer">
+          <div class="w-9 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-rose-600 relative"></div>
+        </label>
+      </div>
+
+      <header class="relative w-full h-[60vh] md:h-[70vh] pt-20 border-b border-slate-200 dark:border-slate-800/50 overflow-hidden">
         <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000" style="background-image: url('https://images.unsplash.com/photo-1540039155733-d7696d8ba620?q=80&w=2500&auto=format&fit=crop');">
-          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/70 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
         </div>
-        <div class="max-w-[1400px] mx-auto px-6 lg:px-8 h-full flex flex-col justify-end pb-16 relative z-10">
+        <div class="max-w-[1400px] mx-auto px-6 lg:px-8 h-full flex flex-col justify-end pb-12 relative z-10">
           <div class="max-w-3xl animate-fade-in-up">
-            <span class="py-1 px-3 bg-rose-600 rounded-full text-xs font-bold text-white mb-2 max-w-fit">Destaque da Semana</span>
-            <h2 class="text-4xl md:text-6xl font-black leading-tight text-white mb-3 tracking-tighter shadow-text">ROCK IN BAZA: THE FESTIVAL</h2>
-            <p class="text-slate-200 text-base md:text-lg font-medium mb-6 flex gap-3 items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-rose-500"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
-              <span>Sábado, 20 de Dezembro de 2026</span>
-              <span class="text-slate-500 mx-2">|</span>
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-rose-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
-              <span>Estádio Baza, São Paulo</span>
-            </p>
-            <button class="py-4 px-8 bg-white text-slate-900 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all text-sm w-fit flex items-center gap-2 group mt-6">
-              Ver Detalhes 
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-slate-400 group-hover:text-rose-600 transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
+            <span class="py-1 px-3 bg-rose-600 rounded-full text-[10px] font-bold text-white mb-3 max-w-fit uppercase tracking-widest">Destaque</span>
+            <h2 class="text-4xl md:text-6xl font-black leading-tight text-white mb-3 tracking-tighter shadow-text">O MAIOR FESTIVAL DA SUA VIDA.</h2>
+            <button (click)="mostrarAviso('Página de Detalhes do Evento será ativada na próxima versão!')" class="py-3 px-8 bg-white text-slate-900 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all text-sm w-fit flex items-center gap-2 mt-4">
+              Ver Detalhes do Festival
             </button>
           </div>
         </div>
       </header>
 
-      <main class="mt-16 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-32">
-        <section class="mb-14">
-          <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-            <button *ngFor="let cat of categorias" class="snap-start shrink-0 flex flex-col items-center gap-3 w-32 p-5 bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl hover:border-rose-400 dark:hover:border-rose-500 hover:shadow-md transition-all focus-visible:ring-2 focus-visible:ring-rose-500">
-              <div class="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-inner">
-                <ng-container [ngSwitch]="cat">
-                  <svg *ngSwitchCase="'Festas e Shows'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" /></svg>
-                  <svg *ngSwitchCase="'Teatros'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
-                  <svg *ngSwitchCase="'Stand Up'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" /></svg>
-                  <svg *ngSwitchCase="'Esportes'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" /></svg>
-                  <svg *ngSwitchCase="'Passeios'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
-                </ng-container>
+      <section class="max-w-[1400px] mx-auto px-4 mt-12 mb-10">
+        <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x justify-start md:justify-center">
+          <button *ngFor="let cat of categoriasLista" 
+                  (click)="categoriaAtiva = cat"
+                  [ngClass]="categoriaAtiva === cat ? 'border-rose-600 ring-2 ring-rose-500/20 bg-rose-50 dark:bg-rose-950/20' : 'border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-rose-400'"
+                  class="snap-start shrink-0 flex flex-col items-center gap-2 w-28 p-4 border rounded-2xl transition-all outline-none">
+            <span [ngClass]="categoriaAtiva === cat ? 'text-rose-600' : 'text-slate-500'" class="text-2xl">{{ getIconeCategoria(cat) }}</span>
+            <span [ngClass]="categoriaAtiva === cat ? 'text-rose-600' : 'text-slate-700 dark:text-slate-300'" class="text-[11px] font-bold text-center tracking-tight">{{ cat }}</span>
+          </button>
+        </div>
+      </section>
+
+      <main class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-16 min-h-[40vh]">
+        <div class="flex justify-between items-end mb-8 border-b border-slate-200 dark:border-slate-800/50 pb-4">
+          <h3 class="text-2xl font-black uppercase tracking-tighter text-slate-950 dark:text-white">
+            {{ categoriaAtiva === 'Todos' ? 'Todos os Eventos' : categoriaAtiva }}
+          </h3>
+        </div>
+
+        <div *ngIf="isLoading" class="py-20 text-center flex flex-col items-center justify-center">
+          <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-rose-600 rounded-full animate-spin mb-4"></div>
+          <p class="text-slate-500 font-semibold text-sm">Carregando experiências incríveis...</p>
+        </div>
+
+        <div *ngIf="!isLoading && eventosFiltrados.length === 0" class="py-20 text-center bg-white dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700">
+          <span class="text-4xl mb-4 block">😢</span>
+          <h4 class="text-lg font-bold text-slate-700 dark:text-slate-300">Nenhum evento encontrado</h4>
+          <p class="text-slate-500 text-sm mt-1">Tente mudar os filtros ou a sua busca.</p>
+          <button (click)="termoBusca = ''; categoriaAtiva = 'Todos'" class="mt-4 text-rose-600 font-bold text-sm hover:underline outline-none">Limpar Filtros</button>
+        </div>
+
+        <div *ngIf="!isLoading && eventosFiltrados.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <article *ngFor="let event of eventosFiltrados" class="group flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 hover:shadow-xl dark:hover:shadow-rose-900/10 transition-all duration-300">
+            
+            <div class="relative w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-tr from-rose-950/40 to-transparent z-10"></div>
+              <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-110 transition-transform duration-700"></div>
+              <div class="absolute top-3 right-3 z-20 bg-black/50 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-md">{{ event.category }}</div>
+              
+              <div *ngIf="event.isSoldOut" class="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex items-center justify-center">
+                <span class="bg-red-600 text-white font-black px-6 py-2 rounded-xl text-lg uppercase tracking-widest shadow-2xl rotate-[-10deg] border-2 border-dashed border-white">Esgotado</span>
               </div>
-              <span class="text-xs font-bold text-center text-slate-700 dark:text-slate-300 tracking-tight">{{ cat }}</span>
-            </button>
-          </div>
-        </section>
+            </div>
 
-        <section aria-labelledby="section-sp-title" class="mb-16">
-          <div class="flex justify-between items-end mb-8 border-b border-slate-200 dark:border-slate-800/50 pb-6">
-            <h3 class="text-3xl font-black uppercase tracking-tighter text-slate-950 dark:text-white">Em Destaque</h3>
-          </div>
+            <div class="p-5 flex-1 flex flex-col">
+              <h4 class="text-lg font-black text-slate-950 dark:text-white leading-tight mb-1 line-clamp-2">{{ event.name }}</h4>
+              <p class="text-sm font-semibold text-rose-600 dark:text-rose-500 mb-4">{{ event.eventDate | date:"dd/MM/yyyy 'às' HH:mm" }}</p>
 
-          <div *ngIf="eventos.length === 0" class="py-24 text-center border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-900/50">
-            <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-rose-600 rounded-full animate-spin mx-auto mb-5 shadow-md"></div>
-            <p class="text-slate-700 dark:text-slate-300 font-semibold text-lg">Sincronizando vitrine com a rede distribuída...</p>
-          </div>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-            <article *ngFor="let event of eventos" class="group flex flex-col bg-transparent cursor-pointer outline-none p-1 focus-within:ring-2 focus-within:ring-rose-500 rounded-2xl">
-              <div class="relative w-full aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden mb-5 shadow-sm group-hover:shadow-lg dark:group-hover:shadow-rose-600/10 transition-all duration-300">
-                <div class="absolute inset-0 bg-gradient-to-tr from-rose-950/20 to-slate-950/10 z-10 group-hover:opacity-0 transition-opacity"></div>
-                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700"></div>
+              <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div>
+                  <span class="block text-[10px] text-slate-500 uppercase tracking-wider font-bold">A partir de</span>
+                  <span class="text-lg font-black text-slate-900 dark:text-white">R$ {{ event.price }},00</span>
+                </div>
                 
-                <div *ngIf="event.isSoldOut" class="absolute top-4 left-4 bg-red-600 text-white font-black px-4 py-1.5 rounded-lg text-[10px] uppercase tracking-widest z-20 shadow-xl rotate-[-5deg]">
-                  Esgotado
-                </div>
+                <button (click)="adicionarAoCarrinho(event)" [disabled]="event.isSoldOut" class="w-10 h-10 bg-rose-50 dark:bg-slate-800 hover:bg-rose-600 hover:text-white text-rose-600 rounded-xl flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed outline-none">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                </button>
               </div>
-
-              <div class="flex-1 flex flex-col px-1">
-                <h4 class="text-xl font-extrabold text-slate-950 dark:text-white leading-tight mb-2 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors line-clamp-2 tracking-tight">
-                  {{ event.name }}
-                </h4>
-                <div class="flex items-center gap-2 text-rose-600 dark:text-rose-400 text-sm font-bold mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
-                  {{ event.eventDate | date:"dd 'de' MMMM" }}
-                </div>
-
-                <div class="mt-auto flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
-                  <span class="text-xs font-bold text-slate-600 dark:text-slate-400 tracking-tight">{{ event.availableTickets }} Restantes</span>
-                  
-                  <button (click)="comprar(event.id); $event.stopPropagation()" [disabled]="event.isSoldOut" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow disabled:cursor-not-allowed">
-                    {{ event.isSoldOut ? 'Encerrado' : 'Comprar' }}
-                  </button>
-                </div>
-              </div>
-            </article>
-          </div>
-        </section>
+            </div>
+          </article>
+        </div>
       </main>
 
-      <div *ngIf="isChatOpen" class="fixed bottom-24 right-8 z-[150] w-80 sm:w-96 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col animate-fade-in-up" role="dialog" aria-label="BazaHelp Assistente Virtual">
-        
-        <div class="bg-rose-600 p-4 flex justify-between items-center text-white">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shadow-inner">🤖</div>
+      <footer class="bg-slate-100 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
+        <div class="max-w-[1400px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+          <div class="col-span-1 md:col-span-1">
+            <h2 class="text-2xl font-black tracking-tighter text-slate-950 dark:text-white mb-4">BAZA<span class="text-rose-600">TICKET</span></h2>
+            <p class="text-sm text-slate-500 mb-6">A maneira mais rápida e segura de garantir o seu lugar nas melhores experiências do Brasil.</p>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 dark:text-white mb-4">Para Fãs</h4>
+            <ul class="space-y-2 text-sm text-slate-500">
+              <li><a href="#" (click)="$event.preventDefault(); mostrarAviso('Acesse seu perfil de usuário!')" class="hover:text-rose-600 transition-colors">Meus Ingressos</a></li>
+              <li><a href="#" (click)="$event.preventDefault(); mostrarAviso('Nossa central de ajuda por e-mail está chegando.')" class="hover:text-rose-600 transition-colors">Central de Ajuda</a></li>
+              <li><a href="#" (click)="$event.preventDefault(); mostrarAviso('Aceitamos Pix e Cartão de Crédito.')" class="hover:text-rose-600 transition-colors">Meios de Pagamento</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 dark:text-white mb-4">Institucional</h4>
+            <ul class="space-y-2 text-sm text-slate-500">
+              <li><a href="#" (click)="$event.preventDefault(); mostrarAviso('Em breve, página sobre nós.')" class="hover:text-rose-600 transition-colors">Sobre a Empresa</a></li>
+              <li><a href="#" (click)="$event.preventDefault(); mostrarAviso('Seja um produtor parceiro!')" class="hover:text-rose-600 transition-colors">Venda na BazaTicket</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4 class="font-bold text-slate-900 dark:text-white mb-4">Segurança</h4>
+            <div class="flex gap-2 flex-wrap text-2xl">
+              🔒 💳 🎫 📱
+            </div>
+            <p class="text-xs text-slate-500 mt-3">Pagamentos processados com criptografia de ponta a ponta.</p>
+          </div>
+        </div>
+        <div class="max-w-[1400px] mx-auto px-6 border-t border-slate-200 dark:border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+          <p>© 2026 BazaTicket Experiências. Todos os direitos reservados.</p>
+          <div class="flex gap-4 mt-4 md:mt-0">
+            <a href="#" class="hover:text-slate-900 dark:hover:text-white">Termos de Uso</a>
+            <a href="#" class="hover:text-slate-900 dark:hover:text-white">Privacidade</a>
+          </div>
+        </div>
+      </footer>
+
+      <div *ngIf="isCartOpen" class="fixed inset-0 z-[300] bg-slate-950/50 backdrop-blur-sm flex justify-end animate-fade-in">
+        <div class="w-full max-w-md bg-white dark:bg-slate-950 h-full shadow-2xl flex flex-col animate-slide-left border-l border-slate-200 dark:border-slate-800">
+          
+          <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900">
+            <h2 class="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">🛒 Seus Ingressos</h2>
+            <button (click)="isCartOpen = false" class="p-2 text-slate-400 hover:text-red-500 bg-white dark:bg-slate-800 rounded-full shadow-sm outline-none">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+
+          <div class="flex-1 overflow-y-auto p-6">
+            <div *ngIf="carrinho.length === 0" class="h-full flex flex-col items-center justify-center text-center">
+              <div class="text-5xl mb-4 opacity-50">🎫</div>
+              <p class="text-slate-500 font-medium text-lg">Seu carrinho está vazio.</p>
+              <button (click)="isCartOpen = false" class="mt-4 text-rose-600 font-bold hover:underline outline-none">Continuar explorando</button>
+            </div>
+
+            <div *ngFor="let item of carrinho" class="flex gap-4 mb-4 bg-slate-50 dark:bg-slate-900 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 relative group">
+              <div class="w-20 h-20 bg-slate-200 dark:bg-slate-800 rounded-xl bg-[url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=200&auto=format&fit=crop')] bg-cover bg-center"></div>
+              <div class="flex-1 py-1">
+                <h5 class="text-sm font-bold text-slate-900 dark:text-white leading-tight pr-6">{{ item.event.name }}</h5>
+                <p class="text-xs text-slate-500 mt-1">{{ item.event.eventDate | date:"dd/MM/yyyy" }}</p>
+                <div class="flex justify-between items-center mt-2">
+                  <p class="text-sm font-black text-rose-600">R$ {{ item.event.price }},00</p>
+                  <span class="text-xs font-bold text-slate-500 bg-slate-200 dark:bg-slate-800 px-2 py-1 rounded">Qtd: {{ item.quantity }}</span>
+                </div>
+              </div>
+              <button (click)="removerDoCarrinho(item.event.id)" class="absolute top-2 right-2 text-slate-300 hover:text-red-500 p-1 bg-white dark:bg-slate-950 rounded-md shadow outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="carrinho.length > 0" class="p-6 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
+            <div class="flex justify-between items-center mb-6">
+              <span class="text-slate-500 font-semibold">Total a pagar:</span>
+              <span class="text-2xl font-black text-slate-900 dark:text-white">R$ {{ getTotalCarrinho() }},00</span>
+            </div>
+            
+            <button (click)="finalizarCompra()" [disabled]="isProcessing" class="w-full bg-rose-600 text-white font-black py-4 rounded-xl hover:bg-rose-700 transition-all active:scale-95 shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 outline-none">
+              <span *ngIf="isProcessing" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              {{ isProcessing ? 'Processando Pagamento...' : 'Finalizar Compra Segura' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isLoginOpen" class="fixed inset-0 z-[400] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4 animate-fade-in">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative animate-fade-in-up">
+          <button (click)="isLoginOpen = false" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors z-10 p-1 bg-slate-100 dark:bg-slate-800 rounded-md outline-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+          </button>
+          
+          <div class="p-8 pb-4 text-center border-b border-slate-100 dark:border-slate-800 relative">
+            <div class="w-14 h-14 bg-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-rose-600/20"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg></div>
+            <h2 class="text-2xl font-black tracking-tight text-slate-950 dark:text-white">
+              {{ modalMode === 'login' ? 'Acesse sua conta' : 'Crie sua conta VIP' }}
+            </h2>
+          </div>
+          
+          <div class="p-8 space-y-4">
+            <div *ngIf="modalMode === 'register'">
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome Completo</label>
+              <input type="text" placeholder="Allan Silva" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-950 dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+            </div>
+
             <div>
-              <h4 class="font-black text-sm leading-tight tracking-tight">BazaHelp</h4>
+              <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">E-mail</label>
+              <input [(ngModel)]="email" type="email" placeholder="admin@baza.com" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-950 dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+            </div>
+            
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Senha</label>
+              </div>
+              <input [(ngModel)]="password" type="password" placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-950 dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+            </div>
+            
+            <button (click)="autenticar()" class="w-full bg-rose-600 text-white font-black py-3.5 rounded-xl hover:bg-rose-700 transition-all active:scale-95 shadow-lg shadow-rose-600/20 mt-2 text-sm outline-none">
+              {{ modalMode === 'login' ? 'Entrar' : 'Criar Conta e Entrar' }}
+            </button>
+
+            <p class="text-center text-sm font-medium text-slate-500 pt-2">
+              {{ modalMode === 'login' ? 'Ainda não tem conta?' : 'Já possui uma conta?' }} 
+              <button (click)="modalMode = modalMode === 'login' ? 'register' : 'login'" class="text-rose-600 font-bold hover:underline ml-1 outline-none">
+                {{ modalMode === 'login' ? 'Criar agora' : 'Faça login' }}
+              </button>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="isChatOpen" class="fixed bottom-24 right-4 md:right-8 z-[150] w-[90vw] md:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl flex flex-col animate-fade-in-up">
+        
+        <div class="bg-rose-600 p-4 flex justify-between items-center text-white rounded-t-3xl">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shadow-inner border border-white/20">👩‍💼</div>
+            <div>
+              <h4 class="font-black text-sm leading-tight tracking-tight">Atendimento Baza</h4>
               <span class="text-[10px] font-bold text-rose-200 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span> Online
               </span>
             </div>
           </div>
-          <button (click)="isChatOpen = false" class="text-rose-200 hover:text-white transition-colors p-1 rounded focus:ring-2 focus:ring-white outline-none" aria-label="Fechar chat">
+          <button (click)="isChatOpen = false" class="text-rose-200 hover:text-white transition-colors p-1 bg-black/10 rounded-md outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
-        <div class="flex-1 h-80 p-4 overflow-y-auto bg-slate-50 dark:bg-slate-950 flex flex-col gap-4">
+        <div #chatScroll class="h-80 max-h-[60vh] p-4 overflow-y-auto bg-slate-50 dark:bg-slate-950 flex flex-col gap-4">
           <div *ngFor="let msg of mensagensChat" [ngClass]="msg.bot ? 'items-start' : 'items-end'" class="flex flex-col w-full">
-            <div [ngClass]="msg.bot ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-br-2xl border border-slate-100 dark:border-slate-700' : 'bg-rose-600 text-white rounded-bl-2xl shadow-rose-600/20'" class="p-3.5 rounded-t-2xl max-w-[85%] text-sm font-medium shadow-sm leading-relaxed">
+            <div [ngClass]="msg.bot ? 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-br-2xl border border-slate-200 dark:border-slate-700' : 'bg-rose-600 text-white rounded-bl-2xl shadow-sm'" class="p-3.5 rounded-t-2xl max-w-[85%] text-sm font-medium leading-relaxed">
               {{ msg.texto }}
             </div>
             <span class="text-[10px] text-slate-400 font-semibold mt-1 px-1">{{ msg.bot ? 'Assistente Baza' : 'Você' }}</span>
           </div>
           
           <div *ngIf="chatDigitando" class="flex items-start w-full animate-pulse">
-            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none border border-slate-100 dark:border-slate-700 flex gap-1.5 items-center">
-              <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
-              <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
-              <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-bl-none border border-slate-200 dark:border-slate-700 flex gap-1.5 items-center">
+              <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span><span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span>
             </div>
           </div>
         </div>
 
-        <div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
-          <input [(ngModel)]="chatInput" (keyup.enter)="enviarMensagemChat()" type="text" placeholder="Tire sua dúvida..." class="flex-1 bg-slate-100 dark:bg-slate-950 border border-transparent dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition-all placeholder:text-slate-500">
-          <button (click)="enviarMensagemChat()" [disabled]="!chatInput.trim() || chatDigitando" class="w-12 h-12 shrink-0 bg-rose-600 text-white rounded-xl flex items-center justify-center hover:bg-rose-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900 outline-none" aria-label="Enviar mensagem">
+        <div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 rounded-b-3xl">
+          <input [(ngModel)]="chatInput" (keyup.enter)="enviarMensagemChat()" type="text" placeholder="Dúvidas sobre pagamento ou ingressos?" class="flex-1 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-rose-500 transition-all">
+          <button (click)="enviarMensagemChat()" [disabled]="!chatInput.trim() || chatDigitando" class="w-12 h-12 shrink-0 bg-rose-600 text-white rounded-xl flex items-center justify-center hover:bg-rose-700 disabled:opacity-50 outline-none">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 -ml-0.5"><path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z" /></svg>
           </button>
         </div>
       </div>
 
-      <button (click)="isChatOpen = !isChatOpen" class="fixed bottom-8 right-8 z-50 bg-slate-950 dark:bg-white text-white dark:text-slate-950 p-4 rounded-full shadow-2xl hover:scale-110 transition-transform focus-visible:ring-4 focus-visible:ring-rose-500/50 flex items-center justify-center group outline-none" aria-label="Abrir chat de ajuda">
+      <button (click)="isChatOpen = !isChatOpen" class="fixed bottom-6 right-4 md:bottom-8 md:right-8 z-50 bg-slate-900 dark:bg-white text-white dark:text-slate-950 p-4 rounded-full shadow-2xl hover:scale-110 transition-transform flex items-center justify-center group outline-none ring-4 ring-slate-900/20 dark:ring-white/20">
         <svg *ngIf="!isChatOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" /></svg>
         <svg *ngIf="isChatOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-        
-        <span *ngIf="!isChatOpen" class="absolute right-full mr-4 bg-slate-950 dark:bg-white text-white dark:text-slate-900 text-sm font-bold py-2.5 px-5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none shadow-xl">
-          Olá, BazaHelp! 👋
-        </span>
       </button>
 
-      <div *ngIf="isLoginOpen" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm p-4">
-        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative animate-fade-in-up">
-          <button (click)="isLoginOpen = false" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors outline-none focus:ring-2 focus:ring-rose-500 rounded">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
-          </button>
-          
-          <div class="p-9 pb-7 text-center border-b border-slate-100 dark:border-slate-800">
-            <div class="w-14 h-14 bg-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-rose-600/20">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
-            </div>
-            <h2 class="text-3xl font-black tracking-tight text-slate-950 dark:text-white">Acesse sua conta</h2>
-          </div>
-          
-          <div class="p-9 pt-7 space-y-6">
-            <div>
-              <label class="block text-sm font-semibold text-slate-800 dark:text-slate-300 mb-2">E-mail</label>
-              <input [(ngModel)]="email" type="email" placeholder="admin@baza.com" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4 text-slate-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all placeholder:text-slate-400">
-            </div>
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <label class="block text-sm font-semibold text-slate-800 dark:text-slate-300">Senha</label>
-              </div>
-              <input [(ngModel)]="password" type="password" placeholder="••••••••" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4 text-slate-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all">
-            </div>
-            <button (click)="autenticar()" class="w-full bg-rose-600 text-white font-black py-4 rounded-xl hover:bg-rose-700 transition-all active:scale-95 shadow-lg shadow-rose-600/20 mt-3 text-base outline-none focus:ring-4 focus:ring-rose-500/50">Entrar</button>
-          </div>
-        </div>
+      <div *ngIf="toastMessage" class="fixed top-24 right-1/2 translate-x-1/2 md:translate-x-0 md:right-8 z-[500] bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-fade-in-up border border-slate-700 w-[90%] md:w-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-rose-500 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" /></svg>
+        <p class="text-sm font-semibold leading-tight">{{ toastMessage }}</p>
       </div>
+
     </div>
   `,
   styles: [`
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-    .animate-fade-in-up { animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-    .shadow-text { text-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
+    .animate-slide-left { animation: slideLeft 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .shadow-text { text-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .scrollbar-hide::-webkit-scrollbar { display: none; }
     .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
   `]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewChecked {
   private http = inject(HttpClient);
   
+  // Elemento do Chat para o Scroll Automático
+  @ViewChild('chatScroll') private chatScrollContainer!: ElementRef;
+  
   eventos: EventTicket[] = [];
-  isLoginOpen = false;
+  isLoading = true;
   isLoggedIn = false;
+  
+  // Acessibilidade (A11y)
+  isAcessibilidadeOpen = false;
+  altoContraste = false;
+  fonteGrande = false;
+
+  termoBusca = '';
+  categoriaAtiva = 'Todos';
+  categoriasLista = ['Todos', 'Festas e Shows', 'Teatros', 'Stand Up', 'Esportes', 'Passeios'];
+  
+  carrinho: CartItem[] = [];
+  isCartOpen = false;
+  isProcessing = false;
+  
+  isLoginOpen = false;
+  modalMode: 'login' | 'register' = 'login';
   email = '';
   password = '';
-  categorias = ['Festas e Shows', 'Teatros', 'Stand Up', 'Esportes', 'Passeios'];
 
-  // Controle do Chatbot
   isChatOpen = false;
   chatDigitando = false;
   chatInput = '';
-  mensagensChat = [
-    { bot: true, texto: 'Olá VIP! Sou o BazaHelp. Pode me perguntar como comprar ingressos ou como nossa arquitetura de ponta funciona! ⚡' }
-  ];
+  mensagensChat = [{ bot: true, texto: 'Olá! Sou a assistente de atendimento da BazaTicket. Como posso te ajudar com a sua compra de ingressos hoje? 😊' }];
+  toastMessage = '';
+  toastTimeout: any;
 
   ngOnInit() {
-    this.carregarEventos();
     this.verificarSessao();
+    this.carregarEventos();
+  }
+
+  // Faz a barra do chat rolar para baixo após renderizar nova mensagem
+  ngAfterViewChecked() {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    try {
+      if(this.chatScrollContainer) {
+        this.chatScrollContainer.nativeElement.scrollTop = this.chatScrollContainer.nativeElement.scrollHeight;
+      }
+    } catch(err) { }
   }
 
   carregarEventos() {
-    // Busca do Gateway YARP configurado no .NET
+    this.isLoading = true;
     this.http.get<EventTicket[]>('http://localhost:5130/api/events').subscribe({
-      next: (dados) => this.eventos = dados,
-      error: (err) => console.error('Erro ao carregar eventos:', err)
+      next: (dados) => {
+        const categoriasMock = ['Festas e Shows', 'Teatros', 'Stand Up', 'Esportes'];
+        this.eventos = dados.map((ev, index) => ({
+          ...ev,
+          price: Math.floor(Math.random() * (350 - 50 + 1) + 50), 
+          category: categoriasMock[index % categoriasMock.length]
+        }));
+        this.isLoading = false;
+      },
+      error: () => {
+        this.mostrarAviso('Puxa, estamos com instabilidade na conexão com os servidores. Tente novamente em instantes.');
+        this.isLoading = false;
+      }
+    });
+  }
+
+  get eventosFiltrados() {
+    return this.eventos.filter(ev => {
+      const passaCategoria = this.categoriaAtiva === 'Todos' || ev.category === this.categoriaAtiva;
+      const passaBusca = ev.name.toLowerCase().includes(this.termoBusca.toLowerCase());
+      return passaCategoria && passaBusca;
+    });
+  }
+
+  adicionarAoCarrinho(event: EventTicket) {
+    if (!this.isLoggedIn) {
+      this.abrirModal('login');
+      return;
+    }
+    const itemExistente = this.carrinho.find(i => i.event.id === event.id);
+    if (itemExistente) {
+      if (itemExistente.quantity < event.availableTickets) itemExistente.quantity++;
+      else this.mostrarAviso('Ops! Você atingiu o limite de ingressos disponíveis para este evento.');
+    } else {
+      this.carrinho.push({ event, quantity: 1 });
+    }
+    this.isCartOpen = true;
+  }
+
+  removerDoCarrinho(eventId: string) {
+    this.carrinho = this.carrinho.filter(i => i.event.id !== eventId);
+  }
+
+  getQuantidadeCarrinho() {
+    return this.carrinho.reduce((total, item) => total + item.quantity, 0);
+  }
+
+  getTotalCarrinho() {
+    return this.carrinho.reduce((total, item) => total + (item.event.price! * item.quantity), 0);
+  }
+
+  finalizarCompra() {
+    if (this.carrinho.length === 0) return;
+    this.isProcessing = true;
+    
+    const item = this.carrinho[0];
+    const payload = { eventId: item.event.id, quantity: item.quantity };
+
+    this.http.post<any>('http://localhost:5130/api/reservations', payload).subscribe({
+      next: (res) => {
+        this.isProcessing = false;
+        this.isCartOpen = false;
+        this.carrinho = [];
+        this.mostrarAviso(`Compra aprovada com sucesso! Seu ingresso (ID: ${res.orderId.substring(0,6)}) está garantido.`);
+        this.carregarEventos(); 
+      },
+      error: (err) => {
+        this.isProcessing = false;
+        this.mostrarAviso(err.error?.message || 'Houve um problema ao processar seu pagamento. Não se preocupe, nada foi cobrado.');
+      }
     });
   }
 
@@ -279,73 +497,76 @@ export class AppComponent implements OnInit {
     this.isLoggedIn = !!localStorage.getItem('baza_jwt_token');
   }
 
-  comprar(id: string) {
-    if (!this.isLoggedIn) {
-      this.isLoginOpen = true; 
-      return;
-    }
-
-    const payload = { eventId: id, quantity: 1 };
-
-    this.http.post<any>('http://localhost:5130/api/reservations', payload).subscribe({
-      next: (res) => {
-        alert(`🎉 SUCESSO!\n${res.message}\nSeu ID de Pedido é: ${res.orderId}\n\nO RabbitMQ já deve estar processando o pagamento na fila!`);
-        this.carregarEventos(); // Sincroniza a vitrine via CQRS
-      },
-      error: (err) => {
-        console.error('Erro na compra:', err);
-        alert(err.error?.message || 'Erro ao processar a reserva. Verifique os serviços C# e o RabbitMQ.');
-      }
-    });
+  abrirModal(mode: 'login' | 'register') {
+    this.modalMode = mode;
+    this.isLoginOpen = true;
   }
 
   autenticar() {
-    if (!this.email || !this.password) return alert('Preencha os campos!');
+    if (!this.email || !this.password) return this.mostrarAviso('Por favor, preencha todos os campos para continuar.');
     
+    if (this.modalMode === 'register') {
+      this.mostrarAviso('Conta VIP criada com sucesso! Verificando credenciais...');
+      this.modalMode = 'login';
+    }
+
     const cred = { email: this.email, password: this.password };
     this.http.post<any>('http://localhost:5130/api/auth/login', cred).subscribe({
       next: (res) => {
         localStorage.setItem('baza_jwt_token', res.token);
         this.isLoggedIn = true;
         this.isLoginOpen = false;
-        this.email = '';
-        this.password = '';
+        this.mostrarAviso('Que bom te ver de volta! Aproveite os eventos.');
       },
-      error: () => alert('A rota de Login falhou! Verifique a chave JWT no GatewayService.')
+      error: () => this.mostrarAviso('E-mail ou senha incorretos. Tente novamente.')
     });
   }
 
   fazerLogout() {
     localStorage.removeItem('baza_jwt_token');
     this.isLoggedIn = false;
+    this.carrinho = [];
   }
 
-  // Lógica de Negócios do BazaHelp Chatbot
+  mostrarAviso(msg: string) {
+    this.toastMessage = msg;
+    if (this.toastTimeout) clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => this.toastMessage = '', 4500);
+  }
+
+  getIconeCategoria(cat: string) {
+    const icones: any = { 'Todos': '🌟', 'Festas e Shows': '🎸', 'Teatros': '🎭', 'Stand Up': '🎤', 'Esportes': '⚽', 'Passeios': '🎡' };
+    return icones[cat] || '🎟️';
+  }
+
+  // Novo Cérebro do Atendimento B2C
   enviarMensagemChat() {
     if (!this.chatInput.trim()) return;
 
-    const textoUsuario = this.chatInput;
-    this.mensagensChat.push({ bot: false, texto: textoUsuario });
+    this.mensagensChat.push({ bot: false, texto: this.chatInput });
+    const userText = this.chatInput.toLowerCase();
     this.chatInput = '';
     this.chatDigitando = true;
 
-    const textoFormatado = textoUsuario.toLowerCase();
-
-    // Latência fake para humanizar a resposta
+    // Tempo simulado de digitação de um humano
     setTimeout(() => {
       this.chatDigitando = false;
-      let resposta = '';
-
-      if (textoFormatado.includes('comprar') || textoFormatado.includes('ingresso') || textoFormatado.includes('como funciona')) {
-        resposta = 'É muito fácil! Basta fazer login, escolher um evento e clicar em "Comprar". Usamos o padrão SAGA no backend para garantir que ninguém fure a fila do seu ingresso.';
-      } else if (textoFormatado.includes('erro') || textoFormatado.includes('falhou') || textoFormatado.includes('pagamento')) {
-        resposta = 'Se o seu pagamento for recusado, a nossa arquitetura ativa um Rollback pelo RabbitMQ e devolve o ingresso para a prateleira automaticamente. Nada se perde! 💳';
-      } else if (textoFormatado.includes('esgotado') || textoFormatado.includes('acabou')) {
-        resposta = 'Usamos concorrência pessimista no MongoDB! Se a tela diz "Esgotado", significa que bloqueamos novas requisições na raiz do banco de dados para evitar overbooking (vender a mesma cadeira duas vezes).';
-      } else {
-        resposta = 'Que incrível! Nossa plataforma foi desenhada com .NET 10, Angular 18 e RabbitMQ para suportar milhares de fãs simultaneamente. Sinta-se à vontade para explorar a vitrine! 🚀';
+      let resposta = 'Certo! Para te ajudar melhor com isso, você prefere explorar nossa vitrine de shows ou quer que eu te redirecione para o e-mail de suporte?';
+      
+      if (userText.includes('olá') || userText.includes('oi') || userText.includes('bom dia')) {
+        resposta = 'Olá! Que bom falar com você. Quer ajuda para encontrar ingressos de algum evento específico hoje?';
+      } else if (userText.includes('comprar') || userText.includes('ingresso')) {
+        resposta = 'Para comprar ingressos é super rápido: faça seu login ali no topo, escolha o evento desejado, clique no botão do carrinho e finalize o pedido. Nós aceitamos Pix e Cartão de Crédito! 💳';
+      } else if (userText.includes('pagamento') || userText.includes('cartão') || userText.includes('pix')) {
+        resposta = 'Trabalhamos com os pagamentos mais seguros do mercado! Você pode pagar via Pix com aprovação na hora, ou dividir no Cartão de Crédito em até 12x.';
+      } else if (userText.includes('cadê') || userText.includes('imprimir') || userText.includes('meu ingresso')) {
+        resposta = 'Não precisa imprimir nada, nós somos sustentáveis! 🌳 Seus ingressos ficam salvos digitalmente. É só clicar no seu perfil ali no topo e acessar a aba "Meus Ingressos" para apresentar o QR Code na portaria do evento.';
+      } else if (userText.includes('erro') || userText.includes('falhou')) {
+        resposta = 'Puxa, sinto muito por isso. Se a sua compra deu erro na tela final, não se preocupe: nosso sistema cancela o processo automaticamente e nenhum valor será debitado da sua conta, tá bem?';
+      } else if (userText.includes('esgotado') || userText.includes('acabou')) {
+        resposta = 'Infelizmente quando aparece a tag "Esgotado", todos os lugares já foram vendidos e o sistema de segurança não permite mais compras para evitar superlotação. Fique de olho que novos lotes podem abrir! 👀';
       }
-
+      
       this.mensagensChat.push({ bot: true, texto: resposta });
     }, 1200);
   }
