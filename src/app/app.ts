@@ -24,7 +24,9 @@ interface EventTicket {
           
           <div class="flex items-center gap-2.5 shrink-0 cursor-pointer group">
             <div class="w-9 h-9 bg-rose-600 rounded-xl flex items-center justify-center group-hover:scale-105 transition-transform">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-white">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" />
+              </svg>
             </div>
             <h1 class="text-2xl font-black tracking-tighter text-slate-950 dark:text-white hidden sm:block">BAZA<span class="text-rose-600 dark:text-rose-500">TICKET</span></h1>
           </div>
@@ -48,12 +50,12 @@ interface EventTicket {
             </ng-container>
 
             <ng-container *ngIf="isLoggedIn">
-              <span class="hidden lg:block text-sm font-bold text-slate-600 dark:text-slate-400">Olá, Usuário VIP</span>
+              <span class="hidden lg:block text-sm font-bold text-slate-600 dark:text-slate-400">Olá, Allan</span>
               <div class="w-10 h-10 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full border-2 border-white dark:border-slate-800 shadow-md flex items-center justify-center cursor-pointer relative group">
-                <span class="text-white font-bold text-sm">B</span>
+                <span class="text-white font-bold text-sm">A</span>
                 <div class="absolute top-full right-0 mt-3 w-40 bg-white dark:bg-slate-900 rounded-xl shadow-xl p-2 border border-slate-100 dark:border-slate-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
-                  <button class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300">Perfil</button>
-                  <button (click)="fazerLogout()" class="w-full text-left p-2 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg text-sm text-red-600">Sair</button>
+                  <button class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300">Perfil VIP</button>
+                  <button (click)="fazerLogout()" class="w-full text-left p-2 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg text-sm text-red-600 font-bold">Sair</button>
                 </div>
               </div>
             </ng-container>
@@ -74,6 +76,13 @@ interface EventTicket {
           <div class="max-w-3xl animate-fade-in-up">
             <span class="py-1 px-3 bg-rose-600 rounded-full text-xs font-bold text-white mb-2 max-w-fit">Destaque da Semana</span>
             <h2 class="text-4xl md:text-6xl font-black leading-tight text-white mb-3 tracking-tighter shadow-text">ROCK IN BAZA: THE FESTIVAL</h2>
+            <p class="text-slate-200 text-base md:text-lg font-medium mb-6 flex gap-3 items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-rose-500"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
+              <span>Sábado, 20 de Dezembro de 2026</span>
+              <span class="text-slate-500 mx-2">|</span>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-rose-500"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+              <span>Estádio Baza, São Paulo</span>
+            </p>
             <button class="py-4 px-8 bg-white text-slate-900 rounded-full font-bold shadow-lg hover:scale-105 active:scale-95 transition-all text-sm w-fit flex items-center gap-2 group mt-6">
               Ver Detalhes 
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 text-slate-400 group-hover:text-rose-600 transition-colors"><path stroke-linecap="round" stroke-linejoin="round" d="m3.75 13.5 10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z" /></svg>
@@ -83,26 +92,48 @@ interface EventTicket {
       </header>
 
       <main class="mt-16 max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+        <section class="mb-14">
+          <div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+            <button *ngFor="let cat of categorias" class="snap-start shrink-0 flex flex-col items-center gap-3 w-32 p-5 bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 rounded-2xl hover:border-rose-400 dark:hover:border-rose-500 hover:shadow-md transition-all focus-visible:ring-2 focus-visible:ring-rose-500">
+              <div class="w-14 h-14 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-rose-600 dark:text-rose-400 shadow-inner">
+                <ng-container [ngSwitch]="cat">
+                  <svg *ngSwitchCase="'Festas e Shows'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="m9 9 10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" /></svg>
+                  <svg *ngSwitchCase="'Teatros'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" /></svg>
+                  <svg *ngSwitchCase="'Stand Up'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" /></svg>
+                  <svg *ngSwitchCase="'Esportes'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" /></svg>
+                  <svg *ngSwitchCase="'Passeios'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.689C3.24 5.88 3 6.27 3 6.695V19.18c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0Z" /></svg>
+                </ng-container>
+              </div>
+              <span class="text-xs font-bold text-center text-slate-700 dark:text-slate-300 tracking-tight">{{ cat }}</span>
+            </button>
+          </div>
+        </section>
+
         <section aria-labelledby="section-sp-title" class="mb-16">
           <div class="flex justify-between items-end mb-8 border-b border-slate-200 dark:border-slate-800/50 pb-6">
-            <h3 class="text-3xl font-black uppercase tracking-tighter text-slate-950 dark:text-white">O que fazer em São Paulo</h3>
+            <h3 class="text-3xl font-black uppercase tracking-tighter text-slate-950 dark:text-white">Em Destaque</h3>
           </div>
 
           <div *ngIf="eventos.length === 0" class="py-24 text-center border-2 border-dashed border-slate-300 dark:border-slate-800 rounded-3xl bg-slate-50 dark:bg-slate-900/50">
             <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-800 border-t-rose-600 rounded-full animate-spin mx-auto mb-5 shadow-md"></div>
-            <p class="text-slate-700 dark:text-slate-300 font-semibold text-lg">Sincronizando vitrine...</p>
+            <p class="text-slate-700 dark:text-slate-300 font-semibold text-lg">Sincronizando vitrine com a rede distribuída...</p>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
             <article *ngFor="let event of eventos" class="group flex flex-col bg-transparent cursor-pointer outline-none p-1 focus-within:ring-2 focus-within:ring-rose-500 rounded-2xl">
-              <div class="relative w-full aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden mb-5 shadow-sm group-hover:shadow-lg transition-all duration-300">
+              <div class="relative w-full aspect-[4/5] bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden mb-5 shadow-sm group-hover:shadow-lg dark:group-hover:shadow-rose-600/10 transition-all duration-300">
                 <div class="absolute inset-0 bg-gradient-to-tr from-rose-950/20 to-slate-950/10 z-10 group-hover:opacity-0 transition-opacity"></div>
                 <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700"></div>
-                <div *ngIf="event.isSoldOut" class="absolute top-4 left-4 bg-red-600 text-white font-black px-4 py-1.5 rounded-lg text-[10px] uppercase tracking-widest z-20 shadow-xl rotate-[-5deg]">Esgotado</div>
+                
+                <div *ngIf="event.isSoldOut" class="absolute top-4 left-4 bg-red-600 text-white font-black px-4 py-1.5 rounded-lg text-[10px] uppercase tracking-widest z-20 shadow-xl rotate-[-5deg]">
+                  Esgotado
+                </div>
               </div>
 
               <div class="flex-1 flex flex-col px-1">
-                <h4 class="text-xl font-extrabold text-slate-950 dark:text-white leading-tight mb-2 group-hover:text-rose-600 transition-colors line-clamp-2 tracking-tight">{{ event.name }}</h4>
+                <h4 class="text-xl font-extrabold text-slate-950 dark:text-white leading-tight mb-2 group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors line-clamp-2 tracking-tight">
+                  {{ event.name }}
+                </h4>
                 <div class="flex items-center gap-2 text-rose-600 dark:text-rose-400 text-sm font-bold mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" /></svg>
                   {{ event.eventDate | date:"dd 'de' MMMM" }}
@@ -110,7 +141,8 @@ interface EventTicket {
 
                 <div class="mt-auto flex items-center justify-between gap-3 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-3 rounded-xl">
                   <span class="text-xs font-bold text-slate-600 dark:text-slate-400 tracking-tight">{{ event.availableTickets }} Restantes</span>
-                  <button (click)="comprar(event.id); $event.stopPropagation()" [disabled]="event.isSoldOut" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow">
+                  
+                  <button (click)="comprar(event.id); $event.stopPropagation()" [disabled]="event.isSoldOut" class="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-full text-xs font-bold transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 shadow disabled:cursor-not-allowed">
                     {{ event.isSoldOut ? 'Encerrado' : 'Comprar' }}
                   </button>
                 </div>
@@ -173,17 +205,21 @@ interface EventTicket {
 
       <div *ngIf="isLoginOpen" class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/60 dark:bg-slate-950/80 backdrop-blur-sm p-4">
         <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative animate-fade-in-up">
-          <button (click)="isLoginOpen = false" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors outline-none focus:ring-2 focus:ring-rose-500 rounded"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg></button>
+          <button (click)="isLoginOpen = false" class="absolute top-6 right-6 text-slate-400 hover:text-red-500 transition-colors outline-none focus:ring-2 focus:ring-rose-500 rounded">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+          </button>
           
           <div class="p-9 pb-7 text-center border-b border-slate-100 dark:border-slate-800">
-            <div class="w-14 h-14 bg-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-rose-600/20"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg></div>
+            <div class="w-14 h-14 bg-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-rose-600/20">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 0 1 0 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 0 1 0-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375Z" /></svg>
+            </div>
             <h2 class="text-3xl font-black tracking-tight text-slate-950 dark:text-white">Acesse sua conta</h2>
           </div>
           
           <div class="p-9 pt-7 space-y-6">
             <div>
               <label class="block text-sm font-semibold text-slate-800 dark:text-slate-300 mb-2">E-mail</label>
-              <input [(ngModel)]="email" type="email" placeholder="seu@email.com" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4 text-slate-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all placeholder:text-slate-400">
+              <input [(ngModel)]="email" type="email" placeholder="admin@baza.com" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-4 text-slate-950 dark:text-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all placeholder:text-slate-400">
             </div>
             <div>
               <div class="flex justify-between items-center mb-2">
@@ -223,7 +259,7 @@ export class AppComponent implements OnInit {
   chatDigitando = false;
   chatInput = '';
   mensagensChat = [
-    { bot: true, texto: 'Olá VIP! Sou o BazaHelp. Pode me perguntar como comprar ingressos ou como nossa arquitetura super rápida funciona! ⚡' }
+    { bot: true, texto: 'Olá VIP! Sou o BazaHelp. Pode me perguntar como comprar ingressos ou como nossa arquitetura de ponta funciona! ⚡' }
   ];
 
   ngOnInit() {
@@ -232,6 +268,7 @@ export class AppComponent implements OnInit {
   }
 
   carregarEventos() {
+    // Busca do Gateway YARP configurado no .NET
     this.http.get<EventTicket[]>('http://localhost:5130/api/events').subscribe({
       next: (dados) => this.eventos = dados,
       error: (err) => console.error('Erro ao carregar eventos:', err)
@@ -252,8 +289,8 @@ export class AppComponent implements OnInit {
 
     this.http.post<any>('http://localhost:5130/api/reservations', payload).subscribe({
       next: (res) => {
-        alert(`🎉 SUCESSO!\n${res.message}\nSeu ID de Pedido é: ${res.orderId}\n\nOlhe o terminal do seu Backend, o RabbitMQ já deve estar processando o pagamento!`);
-        this.carregarEventos(); 
+        alert(`🎉 SUCESSO!\n${res.message}\nSeu ID de Pedido é: ${res.orderId}\n\nO RabbitMQ já deve estar processando o pagamento na fila!`);
+        this.carregarEventos(); // Sincroniza a vitrine via CQRS
       },
       error: (err) => {
         console.error('Erro na compra:', err);
@@ -264,6 +301,7 @@ export class AppComponent implements OnInit {
 
   autenticar() {
     if (!this.email || !this.password) return alert('Preencha os campos!');
+    
     const cred = { email: this.email, password: this.password };
     this.http.post<any>('http://localhost:5130/api/auth/login', cred).subscribe({
       next: (res) => {
@@ -282,7 +320,7 @@ export class AppComponent implements OnInit {
     this.isLoggedIn = false;
   }
 
-  // Lógica Inteligente do BazaHelp
+  // Lógica de Negócios do BazaHelp Chatbot
   enviarMensagemChat() {
     if (!this.chatInput.trim()) return;
 
@@ -291,10 +329,9 @@ export class AppComponent implements OnInit {
     this.chatInput = '';
     this.chatDigitando = true;
 
-    // Lógica simples do chatbot
     const textoFormatado = textoUsuario.toLowerCase();
 
-    // Simula a latência de uma IA pensando...
+    // Latência fake para humanizar a resposta
     setTimeout(() => {
       this.chatDigitando = false;
       let resposta = '';
@@ -302,14 +339,14 @@ export class AppComponent implements OnInit {
       if (textoFormatado.includes('comprar') || textoFormatado.includes('ingresso') || textoFormatado.includes('como funciona')) {
         resposta = 'É muito fácil! Basta fazer login, escolher um evento e clicar em "Comprar". Usamos o padrão SAGA no backend para garantir que ninguém fure a fila do seu ingresso.';
       } else if (textoFormatado.includes('erro') || textoFormatado.includes('falhou') || textoFormatado.includes('pagamento')) {
-        resposta = 'Se o seu pagamento for recusado, nossa arquitetura devolve o ingresso para a prateleira automaticamente. Nada é perdido! 💳';
+        resposta = 'Se o seu pagamento for recusado, a nossa arquitetura ativa um Rollback pelo RabbitMQ e devolve o ingresso para a prateleira automaticamente. Nada se perde! 💳';
       } else if (textoFormatado.includes('esgotado') || textoFormatado.includes('acabou')) {
-        resposta = 'Usamos locks no MongoDB! Se a tela diz "Esgotado", significa que bloqueamos novas requisições em nível de banco de dados para evitar overbooking (vender o mesmo lugar 2 vezes).';
+        resposta = 'Usamos concorrência pessimista no MongoDB! Se a tela diz "Esgotado", significa que bloqueamos novas requisições na raiz do banco de dados para evitar overbooking (vender a mesma cadeira duas vezes).';
       } else {
-        resposta = 'Que incrível! Nossa plataforma foi inteiramente desenhada com .NET 10, Angular 18 e RabbitMQ para suportar milhares de fãs ao mesmo tempo. Pode explorar a vontade! 🚀';
+        resposta = 'Que incrível! Nossa plataforma foi desenhada com .NET 10, Angular 18 e RabbitMQ para suportar milhares de fãs simultaneamente. Sinta-se à vontade para explorar a vitrine! 🚀';
       }
 
       this.mensagensChat.push({ bot: true, texto: resposta });
-    }, 1500);
+    }, 1200);
   }
 }
