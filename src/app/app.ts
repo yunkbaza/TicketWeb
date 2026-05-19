@@ -45,24 +45,30 @@ interface CartItem {
             </div>
           </div>
 
-          <div class="flex items-center gap-4 shrink-0">
-            <button (click)="isCartOpen = true" class="relative p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 transition-colors focus:outline-none">
+          <div class="flex items-center gap-3 shrink-0">
+            
+            <button (click)="toggleTheme()" class="p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-500 transition-colors focus:outline-none rounded-full hover:bg-slate-100 dark:hover:bg-slate-800" [title]="isDarkMode ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'">
+              <svg *ngIf="isDarkMode" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z" /></svg>
+              <svg *ngIf="!isDarkMode" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" /></svg>
+            </button>
+
+            <button (click)="isCartOpen = true" class="relative p-2 text-slate-600 dark:text-slate-300 hover:text-rose-600 transition-colors focus:outline-none rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" /></svg>
               <span *ngIf="carrinho.length > 0" class="absolute top-0 right-0 w-4 h-4 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">{{ getQuantidadeCarrinho() }}</span>
             </button>
 
             <ng-container *ngIf="!isLoggedIn">
               <button (click)="abrirModal('login')" class="text-sm font-semibold text-slate-700 dark:text-slate-300 hover:text-rose-600 hidden sm:block">Entrar</button>
-              <button (click)="abrirModal('register')" class="bg-rose-600 text-white px-5 py-2 rounded-full text-sm font-bold hover:bg-rose-700 transition-all active:scale-95 shadow-sm">Criar Conta</button>
+              <button (click)="abrirModal('register')" class="bg-rose-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-rose-700 transition-all active:scale-95 shadow-sm">Criar Conta</button>
             </ng-container>
 
             <ng-container *ngIf="isLoggedIn">
-              <span class="hidden lg:block text-sm font-bold text-slate-600 dark:text-slate-400">Olá, Allan</span>
-              <div class="w-9 h-9 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full shadow-md flex items-center justify-center cursor-pointer relative group">
-                <span class="text-white font-bold text-sm">A</span>
+              <span class="hidden lg:block text-sm font-bold text-slate-600 dark:text-slate-400">Olá, Vip</span>
+              <div class="w-10 h-10 bg-gradient-to-tr from-rose-500 to-orange-400 rounded-full shadow-md flex items-center justify-center cursor-pointer relative group">
+                <span class="text-white font-bold text-sm">V</span>
                 <div class="absolute top-full right-0 mt-3 w-40 bg-white dark:bg-slate-900 rounded-xl shadow-xl p-2 border border-slate-100 dark:border-slate-800 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
-                  <button (click)="mostrarAviso('Configurações de perfil em breve!')" class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm">Meu Perfil</button>
-                  <button (click)="mostrarAviso('Página de Meus Ingressos sendo carregada...')" class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm">Meus Ingressos</button>
+                  <button (click)="mostrarAviso('Configurações de perfil em breve!')" class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300">Meu Perfil</button>
+                  <button (click)="mostrarAviso('Página de Meus Ingressos sendo carregada...')" class="w-full text-left p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg text-sm text-slate-700 dark:text-slate-300">Meus Ingressos</button>
                   <div class="h-px bg-slate-100 dark:bg-slate-800 my-1"></div>
                   <button (click)="fazerLogout()" class="w-full text-left p-2 hover:bg-red-50 dark:hover:bg-red-950/50 rounded-lg text-sm text-red-600 font-bold">Sair da Conta</button>
                 </div>
@@ -271,7 +277,7 @@ interface CartItem {
           <div class="p-8 space-y-4">
             <div *ngIf="modalMode === 'register'">
               <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome Completo</label>
-              <input type="text" placeholder="Allan Silva" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-950 dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
+              <input type="text" placeholder="Seu Nome" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-950 dark:text-white focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500">
             </div>
 
             <div>
@@ -366,14 +372,15 @@ interface CartItem {
 })
 export class AppComponent implements OnInit, AfterViewChecked {
   private http = inject(HttpClient);
-  
-  // Elemento do Chat para o Scroll Automático
   @ViewChild('chatScroll') private chatScrollContainer!: ElementRef;
   
   eventos: EventTicket[] = [];
   isLoading = true;
   isLoggedIn = false;
   
+  // TEMA MODO CLARO/ESCURO
+  isDarkMode = false; 
+
   // Acessibilidade (A11y)
   isAcessibilidadeOpen = false;
   altoContraste = false;
@@ -402,9 +409,29 @@ export class AppComponent implements OnInit, AfterViewChecked {
   ngOnInit() {
     this.verificarSessao();
     this.carregarEventos();
+    
+    // Inicia no Modo Claro por padrão (conforme solicitado), mas verifica se já havia uma escolha salva
+    if (localStorage.getItem('theme') === 'dark') {
+      this.isDarkMode = true;
+      document.documentElement.classList.add('dark');
+    } else {
+      this.isDarkMode = false;
+      document.documentElement.classList.remove('dark');
+    }
   }
 
-  // Faz a barra do chat rolar para baixo após renderizar nova mensagem
+  // Alterna as classes do Tailwind no root document
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    if (this.isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }
+
   ngAfterViewChecked() {
     this.scrollToBottom();
   }
@@ -539,7 +566,6 @@ export class AppComponent implements OnInit, AfterViewChecked {
     return icones[cat] || '🎟️';
   }
 
-  // Novo Cérebro do Atendimento B2C
   enviarMensagemChat() {
     if (!this.chatInput.trim()) return;
 
@@ -548,7 +574,6 @@ export class AppComponent implements OnInit, AfterViewChecked {
     this.chatInput = '';
     this.chatDigitando = true;
 
-    // Tempo simulado de digitação de um humano
     setTimeout(() => {
       this.chatDigitando = false;
       let resposta = 'Certo! Para te ajudar melhor com isso, você prefere explorar nossa vitrine de shows ou quer que eu te redirecione para o e-mail de suporte?';
@@ -560,11 +585,11 @@ export class AppComponent implements OnInit, AfterViewChecked {
       } else if (userText.includes('pagamento') || userText.includes('cartão') || userText.includes('pix')) {
         resposta = 'Trabalhamos com os pagamentos mais seguros do mercado! Você pode pagar via Pix com aprovação na hora, ou dividir no Cartão de Crédito em até 12x.';
       } else if (userText.includes('cadê') || userText.includes('imprimir') || userText.includes('meu ingresso')) {
-        resposta = 'Não precisa imprimir nada, nós somos sustentáveis! 🌳 Seus ingressos ficam salvos digitalmente. É só clicar no seu perfil ali no topo e acessar a aba "Meus Ingressos" para apresentar o QR Code na portaria do evento.';
+        resposta = 'Não precisa imprimir nada, nós somos sustentáveis! 🌳 Seus ingressos ficam salvos digitalmente. É só acessar a aba "Meus Ingressos" para apresentar o QR Code na portaria.';
       } else if (userText.includes('erro') || userText.includes('falhou')) {
-        resposta = 'Puxa, sinto muito por isso. Se a sua compra deu erro na tela final, não se preocupe: nosso sistema cancela o processo automaticamente e nenhum valor será debitado da sua conta, tá bem?';
+        resposta = 'Puxa, sinto muito por isso. Se a sua compra deu erro na tela final, não se preocupe: nosso sistema cancela o processo automaticamente e nenhum valor será debitado.';
       } else if (userText.includes('esgotado') || userText.includes('acabou')) {
-        resposta = 'Infelizmente quando aparece a tag "Esgotado", todos os lugares já foram vendidos e o sistema de segurança não permite mais compras para evitar superlotação. Fique de olho que novos lotes podem abrir! 👀';
+        resposta = 'Infelizmente quando aparece a tag "Esgotado", todos os lugares já foram vendidos e o sistema trava vendas para evitar superlotação. Fique de olho que novos lotes podem abrir! 👀';
       }
       
       this.mensagensChat.push({ bot: true, texto: resposta });
