@@ -1,28 +1,38 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient, withInterceptors, HttpInterceptorFn, HttpErrorResponse } from '@angular/common/http';
-import { routes } from './app.routes';
-import { catchError } from 'rxjs/operators';
-import { throwError } from 'rxjs';
+import {
+  ApplicationConfig,
+  provideZoneChangeDetection
+} from '@angular/core';
 
-// O "Segurança Inteligente": Pega o token, injeta, e se der 401, ele expulsa o usuário!
+import {
+  provideHttpClient,
+  withInterceptors,
+  HttpInterceptorFn,
+  HttpErrorResponse
+} from '@angular/common/http';
+
+import { provideRouter } from '@angular/router';
+import { catchError, throwError } from 'rxjs';
+
+import { routes } from './app.routes';
+
 const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('baza_jwt_token');
-  
+
   if (token) {
     req = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` }
+      setHeaders: {
+        Authorization: `Bearer ${token}`
+      }
     });
   }
-  
+
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        // Se o Gateway rejeitar (Token expirado ou inválido)
-        localStorage.removeItem('baza_jwt_token'); // Deleta o token velho
-        alert('Sua sessão expirou por segurança. Por favor, faça o Login novamente!');
-        window.location.reload(); // Recarrega a página para limpar o estado
+        localStorage.removeItem('baza_jwt_token');
+        location.reload();
       }
+
       return throwError(() => error);
     })
   );
@@ -30,9 +40,12 @@ const jwtInterceptor: HttpInterceptorFn = (req, next) => {
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }), 
+    provideZoneChangeDetection({
+      eventCoalescing: true
+    }),
     provideRouter(routes),
-    // Registramos o interceptor globalmente
-    provideHttpClient(withInterceptors([jwtInterceptor])) 
+    provideHttpClient(
+      withInterceptors([jwtInterceptor])
+    )
   ]
 };

@@ -1,0 +1,35 @@
+<article class="rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+  
+  <div
+    class="aspect-video bg-cover bg-center"
+    [style.background-image]="'url(' + event.bannerUrl + ')'"
+  ></div>
+
+  <div class="p-5">
+    <span class="text-xs font-bold text-rose-600">
+      {{ event.category }}
+    </span>
+
+    <h3 class="mt-2 text-xl font-black">
+      {{ event.name }}
+    </h3>
+
+    <p class="mt-2 text-sm text-slate-500">
+      {{ event.eventDate | date:'dd/MM/yyyy HH:mm' }}
+    </p>
+
+    <div class="mt-5 flex items-center justify-between">
+      <strong class="text-xl">
+        R$ {{ event.price }}
+      </strong>
+
+      <button
+        (click)="add.emit()"
+        class="bg-rose-600 text-white px-5 py-2 rounded-xl font-bold"
+      >
+        Comprar
+      </button>
+    </div>
+  </div>
+
+</article>

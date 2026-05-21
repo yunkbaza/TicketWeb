@@ -1,0 +1,26 @@
+<section class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+
+  <div class="mb-12">
+    <h1 class="text-5xl font-black tracking-tight">
+      Descubra os melhores eventos.
+    </h1>
+
+    <p class="mt-4 text-slate-500">
+      Shows, festivais, teatros e experiências.
+    </p>
+  </div>
+
+  <app-loading-spinner *ngIf="loading()" />
+
+  <div
+    *ngIf="!loading()"
+    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
+  >
+    <app-event-card
+      *ngFor="let event of filteredEvents()"
+      [event]="event"
+      (add)="addToCart(event)"
+    />
+  </div>
+
+</section>
