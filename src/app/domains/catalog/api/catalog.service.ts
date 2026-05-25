@@ -20,10 +20,7 @@ export class CatalogService {
       ApiClientService
   ) {}
 
-  getEvents():
-    Observable<EventTicket[]> {
-    return this.api.get<
-      EventTicket[]
-    >('/api/catalog/events');
+  getEvents(): Observable<EventTicket[]> {
+    return this.api.get<EventTicket[]>('/api/catalog/events');
   }
 }
