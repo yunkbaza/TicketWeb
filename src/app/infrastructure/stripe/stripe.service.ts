@@ -16,22 +16,12 @@ export class StripeService {
     );
 
     if (!stripe) {
-      throw new Error(
-        'Stripe initialization failed'
-      );
+      return;
     }
 
-    const redirect =
-      (stripe as any).redirectToCheckout;
-
-    if (!redirect) {
-      throw new Error(
-        'redirectToCheckout unavailable'
-      );
-    }
-
-    await redirect.call(stripe, {
-      sessionId
-    });
+    await (stripe as any)
+      .redirectToCheckout({
+        sessionId
+      });
   }
 }

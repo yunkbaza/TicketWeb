@@ -1,13 +1,30 @@
-import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import {
+  Component,
+  inject
+} from '@angular/core';
+
+import { RouterLink }
+from '@angular/router';
+
+import { CommonModule }
+from '@angular/common';
+
+import { LanguageService }
+from '../core/i18n/language.service';
 
 @Component({
   selector: 'app-navbar',
+
   standalone: true,
-  imports: [RouterLink],
+
+  imports: [
+    CommonModule,
+    RouterLink
+  ],
+
   template: `
     <header
-      class="border-b border-zinc-800 bg-zinc-950 sticky top-0 z-50"
+      class="border-b border-zinc-800 bg-zinc-950"
     >
       <div
         class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between"
@@ -19,23 +36,25 @@ import { RouterLink } from '@angular/router';
           BazaTicket
         </a>
 
-        <nav class="flex items-center gap-6">
-          <a
-            routerLink="/"
-            class="text-zinc-300 hover:text-white"
+        <div
+          class="flex items-center gap-4"
+        >
+          <button
+            (click)="language.toggleLanguage()"
+            class="bg-zinc-800 hover:bg-zinc-700 transition px-4 py-2 rounded-xl text-white"
           >
-            Eventos
-          </a>
-
-          <a
-            routerLink="/checkout"
-            class="bg-white text-black px-4 py-2 rounded-xl font-medium"
-          >
-            Checkout
-          </a>
-        </nav>
+            {{
+              language.currentLanguage() === 'pt'
+                ? 'EN'
+                : 'PT'
+            }}
+          </button>
+        </div>
       </div>
     </header>
   `
 })
-export class NavbarComponent {}
+export class NavbarComponent {
+  readonly language =
+    inject(LanguageService);
+}

@@ -1,6 +1,5 @@
 import {
   Injectable,
-  computed,
   signal
 } from '@angular/core';
 
@@ -14,7 +13,7 @@ export class CatalogStore {
     signal<EventTicket[]>([]);
 
   private readonly _loading =
-    signal<boolean>(false);
+    signal(false);
 
   readonly events =
     this._events.asReadonly();
@@ -22,26 +21,11 @@ export class CatalogStore {
   readonly loading =
     this._loading.asReadonly();
 
-  readonly hasEvents = computed(
-    () => this._events().length > 0
-  );
-
   setEvents(events: EventTicket[]) {
     this._events.set(events);
   }
 
-  addEvent(event: EventTicket) {
-    this._events.update(current => [
-      ...current,
-      event
-    ]);
-  }
-
   setLoading(value: boolean) {
     this._loading.set(value);
-  }
-
-  clear() {
-    this._events.set([]);
   }
 }

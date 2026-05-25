@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 
 import { ApiClientService } from '../../../core/http/api-client.service';
 
@@ -6,9 +6,13 @@ import { ApiClientService } from '../../../core/http/api-client.service';
   providedIn: 'root'
 })
 export class ReservationService {
-  private readonly api = inject(ApiClientService);
+  private readonly api =
+    inject(ApiClientService);
 
   reserveTickets(payload: unknown) {
-    return this.api.post('/reservation/lock', payload);
+    return this.api.post(
+      '/api/reservations',
+      payload
+    );
   }
 }
