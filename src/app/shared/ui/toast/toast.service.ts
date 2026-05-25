@@ -4,19 +4,16 @@ import { Injectable, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class ToastService {
-  readonly message = signal<string>('');
+  readonly message = signal('');
+  readonly visible = signal(false);
 
-  private timeout?: ReturnType<typeof setTimeout>;
-
-  show(message: string): void {
+  show(message: string) {
     this.message.set(message);
 
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-    }
+    this.visible.set(true);
 
-    this.timeout = setTimeout(() => {
-      this.message.set('');
-    }, 4000);
+    setTimeout(() => {
+      this.visible.set(false);
+    }, 3000);
   }
 }

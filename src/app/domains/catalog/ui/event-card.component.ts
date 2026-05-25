@@ -10,7 +10,7 @@ import { EventTicket } from '../models/event-ticket.model';
   template: `
     <article class="rounded-2xl border border-zinc-800 overflow-hidden bg-zinc-900">
       <img
-        [src]="event.imageUrl"
+        [src]="event.bannerUrl"
         [alt]="event.title"
         class="w-full h-56 object-cover"
       />

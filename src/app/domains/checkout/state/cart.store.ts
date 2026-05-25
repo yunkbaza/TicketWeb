@@ -11,16 +11,17 @@ export class CartStore {
   readonly items = this._items.asReadonly();
 
   readonly total = computed(() =>
-    this._items().reduce((acc, item) => {
-      return acc + item.price * item.quantity;
-    }, 0)
+    this._items().reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    )
   );
 
-  addItem(item: CartItem): void {
-    this._items.update(items => [...items, item]);
+  addItem(item: CartItem) {
+    this._items.update(current => [...current, item]);
   }
 
-  clear(): void {
+  clear() {
     this._items.set([]);
   }
 }

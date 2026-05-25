@@ -1,17 +1,12 @@
-/* src/styles.css */
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
-
+html,
 body {
+  background: #09090b;
+  color: white;
   margin: 0;
-  font-family:
-    Inter,
-    system-ui,
-    sans-serif;
+  padding: 0;
+  font-family: Inter, sans-serif;
 }

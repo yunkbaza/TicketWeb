@@ -1,6 +1,13 @@
-import { EventTicket } from './event-ticket.model';
+import { EventTicket } from '../../catalog/models/event-ticket.model';
 
 export interface CartItem {
-  event: EventTicket;
+  eventId: string;
+
+  title: string;
+
   quantity: number;
+
+  price: number;
+
+  event: EventTicket;
 }

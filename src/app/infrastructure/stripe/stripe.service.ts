@@ -1,22 +1,36 @@
 import { Injectable } from '@angular/core';
-import { loadStripe, Stripe } from '@stripe/stripe-js';
+
+import {
+  loadStripe
+} from '@stripe/stripe-js';
+
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StripeService {
-  private stripe: Stripe | null = null;
+  async checkout(sessionId: string) {
+    const stripe = await loadStripe(
+      environment.stripePublicKey
+    );
 
-  async initialize(publicKey: string): Promise<void> {
-    this.stripe = await loadStripe(publicKey);
-  }
-
-  async redirectToCheckout(sessionId: string): Promise<void> {
-    if (!this.stripe) {
-      throw new Error('Stripe not initialized');
+    if (!stripe) {
+      throw new Error(
+        'Stripe initialization failed'
+      );
     }
 
-    await this.stripe.redirectToCheckout({
+    const redirect =
+      (stripe as any).redirectToCheckout;
+
+    if (!redirect) {
+      throw new Error(
+        'redirectToCheckout unavailable'
+      );
+    }
+
+    await redirect.call(stripe, {
       sessionId
     });
   }
