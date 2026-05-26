@@ -6,6 +6,7 @@ import { LanguageService } from '../core/i18n/language.service';
 import { CatalogStore } from '../domains/catalog/state/catalog.store';
 import { CartStore } from '../domains/checkout/state/cart.store';
 import { AuthService } from '../core/auth/auth.service';
+import { ToastService } from '../shared/ui/toast/toast.service';
 
 @Component({
   selector: 'app-navbar',
@@ -53,10 +54,13 @@ import { AuthService } from '../core/auth/auth.service';
 
           <div class="flex items-center gap-2">
             @if (!auth.isLoggedIn()) {
-              <button class="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-[#780a43] transition-colors px-3 py-2">{{ lang.t().nav.loginBtn }}</button>
-              <button class="bg-[#780a43] text-white px-5 py-2.5 rounded-full text-sm font-black hover:bg-[#600835] transition-all shadow-md shadow-[#780a43]/20">{{ lang.t().nav.registerBtn }}</button>
+              <button (click)="handleLogin()" class="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-[#780a43] transition-colors px-3 py-2">{{ lang.t().nav.loginBtn }}</button>
+              <button (click)="handleLogin()" class="bg-[#780a43] text-white px-5 py-2.5 rounded-full text-sm font-black hover:bg-[#600835] transition-all shadow-md shadow-[#780a43]/20">{{ lang.t().nav.registerBtn }}</button>
             } @else {
-              <button (click)="auth.logout()" class="text-sm font-bold text-red-500 hover:underline">{{ lang.t().nav.logoutBtn }}</button>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-bold text-slate-500 hidden md:block">Olá, Allan</span>
+                <button (click)="handleLogout()" class="text-sm font-bold text-rose-500 hover:underline">{{ lang.t().nav.logoutBtn }}</button>
+              </div>
             }
           </div>
         </div>
@@ -70,4 +74,15 @@ export class NavbarComponent {
   protected readonly catalog = inject(CatalogStore);
   protected readonly cart = inject(CartStore);
   protected readonly auth = inject(AuthService);
+  private readonly toast = inject(ToastService); // Injetado para dar feedback
+
+  protected handleLogin() {
+    this.auth.login();
+    this.toast.show(this.lang.currentLang() === 'PT' ? 'Login realizado com sucesso!' : 'Login successful!');
+  }
+
+  protected handleLogout() {
+    this.auth.logout();
+    this.toast.show(this.lang.currentLang() === 'PT' ? 'Você saiu da conta.' : 'You logged out.');
+  }
 }
