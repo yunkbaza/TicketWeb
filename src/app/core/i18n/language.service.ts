@@ -1,51 +1,12 @@
-import {
-  Injectable,
-  computed,
-  signal
-} from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
-export type AppLanguage =
-  | 'pt'
-  | 'en';
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class LanguageService {
-  private readonly _language =
-    signal<AppLanguage>('pt');
+  public readonly currentLang = signal<'PT' | 'EN'>((localStorage.getItem('lang') as 'PT' | 'EN') || 'PT');
 
-  readonly currentLanguage =
-    this._language.asReadonly();
-
-  readonly isPortuguese =
-    computed(
-      () => this._language() === 'pt'
-    );
-
-  readonly isEnglish =
-    computed(
-      () => this._language() === 'en'
-    );
-
-  toggleLanguage() {
-    this._language.update(language =>
-      language === 'pt'
-        ? 'en'
-        : 'pt'
-    );
-  }
-
-  setLanguage(language: AppLanguage) {
-    this._language.set(language);
-  }
-
-  translate(
-    portuguese: string,
-    english: string
-  ) {
-    return this.isPortuguese()
-      ? portuguese
-      : english;
+  toggle(): void {
+    const next = this.currentLang() === 'PT' ? 'EN' : 'PT';
+    this.currentLang.set(next);
+    localStorage.setItem('lang', next);
   }
 }

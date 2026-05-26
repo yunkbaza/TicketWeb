@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
 
+import { ShellComponent } from './layout/shell.component'; 
+
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () => import('./layout/shell.component').then(m => m.ShellComponent),
+    component: ShellComponent, 
     children: [
       {
         path: '',
@@ -15,5 +17,8 @@ export const routes: Routes = [
       }
     ]
   },
-  { path: '**', redirectTo: '' }
+  {
+    path: '**',
+    redirectTo: ''
+  }
 ];
