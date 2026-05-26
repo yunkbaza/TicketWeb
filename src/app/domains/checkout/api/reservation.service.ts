@@ -1,18 +1,30 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { ApiClient } from '../../../core/http/api-client.service';
+import { Observable } from 'rxjs';
 
-import { ApiClientService } from '../../../core/http/api-client.service';
+// Interface que casa com o seu Record C# ReservationRequest
+export interface ReservationPayload {
+  eventId: string; 
+  quantity: number;
+}
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface IntentResponse {
+  clientSecret: string;
+  orderId: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ReservationService {
-  private readonly api =
-    inject(ApiClientService);
+  private readonly api = inject(ApiClient);
 
-  reserveTickets(payload: unknown) {
-    return this.api.post(
-      '/api/reservations',
-      payload
-    );
+  // Método para criar o Payment Intent no Backend (SAGA Initiator)
+  createIntent(payload: ReservationPayload): Observable<IntentResponse> {
+    // A rota deve ser o que está configurado no seu Gateway (YARP)
+    return this.api.post<IntentResponse, ReservationPayload>('/api/reservations/intent', payload);
+  }
+
+  // Método para reservar caso não use Intent
+  reserveTicket(payload: ReservationPayload): Observable<any> {
+    return this.api.post<any, ReservationPayload>('/api/reservations', payload);
   }
 }

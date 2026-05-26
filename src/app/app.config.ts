@@ -1,44 +1,19 @@
-import {
-  ApplicationConfig,
-  provideZoneChangeDetection
-} from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
+import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
-import {
-  provideRouter
-} from '@angular/router';
+import { routes } from './app.routes';
+import { authInterceptor } from './core/auth/auth.interceptor';
+import { errorInterceptor } from './core/http/error.interceptor';
+import { loadingInterceptor } from './core/loading/loading.interceptor';
 
-import {
-  provideHttpClient,
-  withInterceptors
-} from '@angular/common/http';
-
-import { appRoutes }
-from './app.routes';
-
-import { authInterceptor }
-from './core/auth/auth.interceptor';
-
-import { errorInterceptor }
-from './core/http/error.interceptor';
-
-import { loadingInterceptor }
-from './core/loading/loading.interceptor';
-
-export const appConfig:
-  ApplicationConfig = {
+export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({
-      eventCoalescing: true
-    }),
-
-    provideRouter(appRoutes),
-
+    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
     provideHttpClient(
-      withInterceptors([
-        authInterceptor,
-        loadingInterceptor,
-        errorInterceptor
-      ])
+      withFetch(),
+      withInterceptors([authInterceptor, errorInterceptor, loadingInterceptor])
     )
   ]
 };

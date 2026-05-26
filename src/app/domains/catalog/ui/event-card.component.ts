@@ -1,50 +1,50 @@
-import {
-  Component,
-  Input
-} from '@angular/core';
-
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { EventTicket } from '../models/event-ticket.model';
 
 @Component({
   selector: 'app-event-card',
   standalone: true,
   imports: [CommonModule],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <article
-      class="bg-zinc-900 rounded-2xl overflow-hidden"
-    >
-      <img
-        [src]="event.bannerUrl"
-        [alt]="event.title"
-        class="w-full h-60 object-cover"
-      />
+    <article class="group flex flex-col bg-white dark:bg-slate-900 rounded-3xl overflow-hidden border border-slate-100 dark:border-slate-800 hover:shadow-2xl dark:hover:shadow-rose-900/10 transition-all duration-500 h-full p-2">
+      
+      <div class="relative w-full aspect-[4/3] bg-slate-100 dark:bg-slate-800 overflow-hidden rounded-2xl">
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent z-10"></div>
+        <img [src]="getImagem(event.category || 'Todos')" 
+             [alt]="'Imagem ilustrativa do evento ' + event.name"
+             loading="lazy"
+             class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out">
+        
+        <div class="absolute top-3 right-3 z-20 backdrop-blur-md bg-white/20 dark:bg-black/30 border border-white/20 text-white text-[10px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
+          {{ event.category }}
+        </div>
+        
+        <div *ngIf="event.isSoldOut" class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm z-20 flex items-center justify-center">
+          <span class="bg-red-600 text-white font-black px-6 py-2 rounded-xl text-lg uppercase tracking-widest shadow-2xl border border-red-500 -rotate-6">Esgotado</span>
+        </div>
+      </div>
 
-      <div class="p-5">
-        <h2
-          class="text-2xl font-bold"
-        >
-          {{ event.title }}
-        </h2>
+      <div class="px-4 py-5 flex-1 flex flex-col">
+        <h4 class="text-lg font-black text-slate-900 dark:text-white leading-tight mb-2 line-clamp-2" [title]="event.name">{{ event.name }}</h4>
+        
+        <div class="flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400 mb-4 gap-1.5">
+           <svg class="w-4 h-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+           <time [attr.datetime]="event.eventDate">{{ event.eventDate | date:"dd/MM/yyyy 'às' HH:mm" }}</time>
+        </div>
 
-        <p class="text-zinc-400 mt-2">
-          {{ event.location }}
-        </p>
-
-        <div
-          class="flex items-center justify-between mt-6"
-        >
-          <span
-            class="text-emerald-400 font-bold text-xl"
-          >
-            R$ {{ event.price }}
-          </span>
-
-          <button
-            class="bg-white text-black px-4 py-2 rounded-xl"
-          >
-            Comprar
+        <div class="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div class="flex flex-col">
+            <span class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">A partir de</span>
+            <span class="text-xl font-black text-slate-900 dark:text-white" [attr.aria-label]="'Preço do ingresso: ' + event.price + ' reais'">R$ {{ event.price }},00</span>
+          </div>
+          
+          <button (click)="actionClick.emit(event)" 
+                  [disabled]="event.isSoldOut"
+                  [attr.aria-label]="event.isSoldOut ? 'Ingressos esgotados para ' + event.name : 'Comprar ingresso para ' + event.name"
+                  class="w-12 h-12 bg-rose-50 dark:bg-slate-800 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-4 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 group-hover:shadow-lg group-hover:shadow-rose-600/20">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
           </button>
         </div>
       </div>
@@ -52,6 +52,17 @@ import { EventTicket } from '../models/event-ticket.model';
   `
 })
 export class EventCardComponent {
-  @Input({ required: true })
-  event!: EventTicket;
+  @Input({ required: true }) event!: EventTicket;
+  @Output() actionClick = new EventEmitter<EventTicket>();
+
+  getImagem(category: string): string {
+    const maps: Record<string, string> = {
+      'Festas e Shows': 'photo-1459749411175-04bf5292ceea?q=80&w=800',
+      'Teatros': 'photo-1507676184212-d0c30a51fb43?q=80&w=800',
+      'Stand Up': 'photo-1585699324551-f6c309eedeca?q=80&w=800',
+      'Esportes': 'photo-1540747913346-19e32dc3e97e?q=80&w=800',
+      'Passeios': 'photo-1525164286253-04e68b9d9406?q=80&w=800'
+    };
+    return `https://images.unsplash.com/${maps[category] || 'photo-1540039155733-d7696d8ba620?q=80&w=800'}`;
+  }
 }

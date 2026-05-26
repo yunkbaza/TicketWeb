@@ -5,7 +5,7 @@ import {
 import { Observable }
 from 'rxjs';
 
-import { ApiClientService }
+import { ApiClient }
 from '../../../core/http/api-client.service';
 
 import { EventTicket }
@@ -17,7 +17,7 @@ from '../models/event-ticket.model';
 export class CatalogService {
   constructor(
     private readonly api:
-      ApiClientService
+      ApiClient
   ) {}
 
   getEvents(): Observable<EventTicket[]> {

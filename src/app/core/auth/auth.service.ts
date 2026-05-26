@@ -1,9 +1,9 @@
 import { Injectable, signal } from '@angular/core';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthService {
+  
+  public isLoggedIn = signal<boolean>(!!localStorage.getItem('baza_jwt_token'));
   private readonly _isAuthenticated = signal(false);
 
   readonly isAuthenticated = this._isAuthenticated.asReadonly();

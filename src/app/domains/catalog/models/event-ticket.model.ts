@@ -1,17 +1,12 @@
 export interface EventTicket {
   id: string;
-
-  title: string;
-
-  description: string;
-
-  location: string;
-
-  bannerUrl: string;
-
+  name: string;
   eventDate: string;
-
-  price: number;
-
+  totalTickets: number;
   availableTickets: number;
+  isSoldOut: boolean;
+  price?: number; 
+  category?: string;
+  imageUrl?: string;
+  description?: string;
 }

@@ -1,22 +1,19 @@
 import { Routes } from '@angular/router';
 
-export const appRoutes: Routes = [
+export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import(
-        './domains/catalog/features/home.component'
-      ).then(m => m.HomeComponent)
+    loadComponent: () => import('./layout/shell.component').then(m => m.ShellComponent),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./domains/catalog/features/home.component').then(m => m.HomeComponent)
+      },
+      {
+        path: 'checkout',
+        loadComponent: () => import('./domains/checkout/features/checkout-flow.component').then(m => m.CheckoutFlowComponent)
+      }
+    ]
   },
-  {
-    path: 'checkout',
-    loadComponent: () =>
-      import(
-        './domains/checkout/features/checkout-flow.component'
-      ).then(m => m.CheckoutFlowComponent)
-  },
-  {
-    path: '**',
-    redirectTo: ''
-  }
+  { path: '**', redirectTo: '' }
 ];
