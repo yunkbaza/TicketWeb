@@ -13,10 +13,10 @@ import { LanguageService } from '../../core/i18n/language.service';
       <div class="bg-[#780a43] p-4 flex justify-between items-center text-white rounded-t-3xl">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center shadow-inner border border-white/20 backdrop-blur-sm">
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.104a2.25 2.25 0 00-.215-4.471 2.25 2.25 0 00-2.035 2.502L5.5 14.5m4.25-11.396v5.714a2.25 2.25 0 00.659 1.591L15 14.5M9.75 3.104c.251.023.501.05.75.082m-.75-.104a2.25 2.25 0 01.215-4.471 2.25 2.25 0 012.035 2.502L13.5 14.5m4.25-11.396v5.714a2.25 2.25 0 01-.659 1.591L15 14.5" /></svg>
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.104a2.25 2.25 0 00-.215-4.471 2.25 2.25 0 00-2.035 2.502L5.5 14.5m4.25-11.396v5.714a2.25 2.25 0 00.659 1.591L15 14.5M9.75 3.104c.251.023.501.05.75.082m-.75-.104a2.25 2.25 0 01.215-4.471 2.25 2.25 0 012.035 2.502L13.5 14.5m4.25-11.396v5.714a2.25 2.25 0 01-.659 1.591L15 14.5" /></svg>
           </div>
           <div>
-            <h4 class="font-black text-sm leading-tight tracking-tight">Baza Assistant</h4>
+            <h4 class="font-black text-sm leading-tight tracking-tight">{{ lang.t().chat.title }}</h4>
             <span class="text-[10px] font-bold text-[#fbcfe8] flex items-center gap-1">
               <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Online
             </span>
@@ -43,7 +43,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 
       <div class="p-3 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2 rounded-b-3xl">
         <input [(ngModel)]="input" (keyup.enter)="send()" type="text" 
-               [placeholder]="lang.currentLang() === 'PT' ? 'Dúvidas sobre o site?' : 'Need help?'" 
+               [placeholder]="lang.t().chat.placeholder" 
                class="flex-1 bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#780a43]">
         <button (click)="send()" [disabled]="!input.trim() || isTyping()" 
                 class="w-12 h-12 bg-[#780a43] text-white rounded-xl flex items-center justify-center hover:bg-[#600835] disabled:opacity-50 transition-colors outline-none">
@@ -66,17 +66,12 @@ export class ChatBotComponent implements AfterViewChecked {
   isOpen = signal(false);
   isTyping = signal(false);
   input = '';
-  
-  // Estado das mensagens
   messages = signal<{bot: boolean, texto: string}[]>([]);
 
   toggleChat() {
     this.isOpen.set(!this.isOpen());
     if (this.isOpen() && this.messages().length === 0) {
-      const welcome = this.lang.currentLang() === 'PT' 
-        ? 'Olá! Sou o assistente BazaTicket. Como posso ajudar com sua reserva de ingressos hoje?'
-        : 'Hello! I am the BazaTicket assistant. How can I help you with your ticket reservation today?';
-      this.messages.set([{ bot: true, texto: welcome }]);
+      this.messages.set([{ bot: true, texto: this.lang.t().chat.welcome }]);
     }
   }
 
@@ -93,13 +88,9 @@ export class ChatBotComponent implements AfterViewChecked {
     this.input = '';
     this.isTyping.set(true);
     
-    // Simula resposta inteligente do bot baseada no idioma da aplicação
     setTimeout(() => {
       this.isTyping.set(false);
-      const reply = this.lang.currentLang() === 'PT'
-        ? 'Nossa infraestrutura distribuída com .NET e Stripe garante que seus ingressos sejam reservados e pagos com 100% de segurança.'
-        : 'Our distributed infrastructure using .NET and Stripe ensures your tickets are reserved and paid with 100% security.';
-      this.messages.update(m => [...m, { bot: true, texto: reply }]);
+      this.messages.update(m => [...m, { bot: true, texto: this.lang.t().chat.reply }]);
     }, 1500);
   }
 }

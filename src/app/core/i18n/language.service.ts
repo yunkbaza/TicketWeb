@@ -34,8 +34,14 @@ const TRANSLATIONS = {
       colNewsletter: 'Fique por dentro',
       newsSub: 'Inscreva-se para receber pré-vendas e atualizações exclusivas de lotes.',
       rights: '© 2026 BazaTicket Engine. Todos os direitos reservados.'
+    },
+    chat: {
+      title: 'Assistente Baza',
+      placeholder: 'Dúvidas sobre ingressos?',
+      welcome: 'Olá! Sou o assistente BazaTicket. Como posso ajudar com sua reserva hoje?',
+      reply: 'Nossa infraestrutura com .NET e Stripe garante que seus ingressos sejam processados com 100% de segurança.'
     }
-  },
+},
   EN: {
     nav: {
       searchPlaceholder: 'Search events, concerts, theaters...',
@@ -69,6 +75,12 @@ const TRANSLATIONS = {
       colNewsletter: 'Stay Tuned',
       newsSub: 'Subscribe to get exclusive pre-sales and ticket tier updates.',
       rights: '© 2026 BazaTicket Engine. All rights reserved.'
+    },
+    chat: {
+      title: 'Assistente Baza',
+      placeholder: 'Dúvidas sobre ingressos?',
+      welcome: 'Olá! Sou o assistente BazaTicket. Como posso ajudar com sua reserva hoje?',
+      reply: 'Nossa infraestrutura com .NET e Stripe garante que seus ingressos sejam processados com 100% de segurança.'
     }
   }
 };

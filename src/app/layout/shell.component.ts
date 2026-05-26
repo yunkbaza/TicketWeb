@@ -18,7 +18,7 @@ import { ChatBotComponent } from '../shared/ui/chat-bot.component';
     <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <app-navbar />
 
-      <main class="flex-1 w-full pt-20">
+      <main>
         <router-outlet />
       </main>
 
