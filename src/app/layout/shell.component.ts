@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 
 import { NavbarComponent } from './navbar.component';
 import { FooterComponent } from './footer.component';
+import { ChatBotComponent } from '../shared/ui/chat-bot.component';
 
 @Component({
   selector: 'app-shell',
@@ -10,17 +11,19 @@ import { FooterComponent } from './footer.component';
   imports: [
     RouterOutlet,
     NavbarComponent,
-    FooterComponent
+    FooterComponent,
+    ChatBotComponent
   ],
   template: `
-    <div class="min-h-screen flex flex-col bg-zinc-950">
+    <div class="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <app-navbar />
 
-      <main class="flex-1">
+      <main class="flex-1 w-full pt-20">
         <router-outlet />
       </main>
 
       <app-footer />
+      <app-chat-bot />
     </div>
   `
 })
