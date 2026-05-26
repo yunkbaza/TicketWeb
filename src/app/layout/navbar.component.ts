@@ -1,32 +1,73 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ThemeService } from '../core/theme/theme.service';
 import { LanguageService } from '../core/i18n/language.service';
+import { CatalogStore } from '../domains/catalog/state/catalog.store';
+import { CartStore } from '../domains/checkout/state/cart.store';
+import { AuthService } from '../core/auth/auth.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   template: `
-    <header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-200 dark:border-zinc-800">
-      <nav class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        <a href="#" class="text-2xl font-black tracking-tighter text-rose-600">BAZA<span class="text-zinc-900 dark:text-white">TICKET</span></a>
+    <header class="fixed top-0 w-full z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/50 transition-all duration-300">
+      <nav class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
         
-        <div class="flex items-center gap-4">
-          <button (click)="lang.toggle()" class="text-xs font-bold px-3 py-1 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition-all">
+        <div class="flex items-center shrink-0 cursor-pointer">
+          <h1 class="text-2xl font-black tracking-tighter text-slate-950 dark:text-white">
+            BAZA<span class="text-[#780a43]">TICKET</span>
+          </h1>
+        </div>
+        
+        <div class="hidden md:flex flex-1 max-w-2xl items-center">
+          <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full px-5 py-2.5 w-full focus-within:ring-2 focus-within:ring-[#780a43] transition-all">
+            <svg class="w-4 h-4 text-slate-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input [ngModel]="catalog.searchQuery()" 
+                   (ngModelChange)="catalog.setSearchQuery($event)" 
+                   type="text" 
+                   [placeholder]="lang.t().nav.searchPlaceholder" 
+                   class="bg-transparent border-none outline-none text-sm w-full text-slate-950 dark:text-white placeholder-slate-400">
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 shrink-0">
+          <button (click)="lang.toggle()" class="text-xs font-black px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors uppercase">
             {{ lang.currentLang() }}
           </button>
-          
-          <button (click)="theme.toggle()" class="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-full transition-all">
-            <svg *ngIf="!theme.isDark()" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-            <svg *ngIf="theme.isDark()" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+
+          <button (click)="theme.toggle()" class="p-2 text-slate-600 dark:text-slate-300 hover:text-[#780a43] dark:hover:text-[#780a43] transition-colors rounded-full outline-none">
+            <svg *ngIf="!theme.isDark()" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            <svg *ngIf="theme.isDark()" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
           </button>
+
+          <div class="relative p-2 text-slate-600 dark:text-slate-300 cursor-pointer">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+            <span *ngIf="cart.totalItems() > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#780a43] text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce">
+              {{ cart.totalItems() }}
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2">
+            @if (!auth.isLoggedIn()) {
+              <button class="text-sm font-bold text-slate-700 dark:text-slate-300 hover:text-[#780a43] transition-colors px-3 py-2">{{ lang.t().nav.loginBtn }}</button>
+              <button class="bg-[#780a43] text-white px-5 py-2.5 rounded-full text-sm font-black hover:bg-[#600835] transition-all shadow-md shadow-[#780a43]/20">{{ lang.t().nav.registerBtn }}</button>
+            } @else {
+              <button (click)="auth.logout()" class="text-sm font-bold text-red-500 hover:underline">{{ lang.t().nav.logoutBtn }}</button>
+            }
+          </div>
         </div>
       </nav>
     </header>
   `
 })
 export class NavbarComponent {
-  protected theme = inject(ThemeService);
-  protected lang = inject(LanguageService);
+  protected readonly theme = inject(ThemeService);
+  protected readonly lang = inject(LanguageService);
+  protected readonly catalog = inject(CatalogStore);
+  protected readonly cart = inject(CartStore);
+  protected readonly auth = inject(AuthService);
 }
