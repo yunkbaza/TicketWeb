@@ -1,24 +1,19 @@
-import {
-  HttpInterceptorFn,
-  HttpRequest,
-  HttpHandlerFn
-} from '@angular/common/http';
+import { HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { AuthService } from './auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (
-  req: HttpRequest<unknown>,
-  next: HttpHandlerFn
-) => {
-  const token = localStorage.getItem('access_token');
+export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
+  const token = authService.getToken();
 
-  if (!token) {
-    return next(req);
+  // Se o token existe, clona a requisição e adiciona o cabeçalho Bearer
+  if (token) {
+    const clonedReq = req.clone({
+      headers: req.headers.set('Authorization', `Bearer ${token}`)
+    });
+    return next(clonedReq);
   }
 
-  const cloned = req.clone({
-    setHeaders: {
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  return next(cloned);
+  // Se não tem token (usuário anônimo navegando no catálogo), envia normalmente
+  return next(req);
 };
