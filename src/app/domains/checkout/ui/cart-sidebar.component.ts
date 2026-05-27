@@ -87,17 +87,12 @@ export class CartSidebarComponent {
         this.isProcessing.set(false);
         this.toast.show(this.lang.currentLang() === 'PT' ? '🎉 Reserva efetuada com sucesso!' : '🎉 Reservation successful!');
         this.cart.clear();
-        this.cart.closeSidebar(); // Fecha a barra lateral!
+        this.cart.closeSidebar();
       },
       error: (err) => {
-        console.warn("Backend falhou. Simulando sucesso pelo Frontend:", err);
-        // Simulação de Sucesso se o Backend .NET estiver fora do ar
-        setTimeout(() => {
-          this.isProcessing.set(false);
-          this.toast.show(this.lang.currentLang() === 'PT' ? '🎟️ Compra Concluída!' : '🎟️ Purchase Successful!');
-          this.cart.clear();
-          this.cart.closeSidebar();
-        }, 1500);
+        this.isProcessing.set(false);
+        const errorMsg = err.error?.message || (this.lang.currentLang() === 'PT' ? 'Erro ao processar reserva.' : 'Error processing reservation.');
+        this.toast.show(`❌ ${errorMsg}`);
       }
     });
   }

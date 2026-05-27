@@ -40,6 +40,16 @@ const TRANSLATIONS = {
       placeholder: 'Dúvidas sobre ingressos?',
       welcome: 'Olá! Sou o assistente BazaTicket. Como posso ajudar com sua reserva hoje?',
       reply: 'Nossa infraestrutura com .NET e Stripe garante que seus ingressos sejam processados com 100% de segurança.'
+    },
+    checkout: {
+      title: 'Finalizar Pedido',
+      total: 'Total a Pagar',
+      empty: 'Seu carrinho está vazio.',
+      back: 'Voltar aos eventos',
+      processing: 'Processando...',
+      confirm: 'Confirmar Compra',
+      success: '🎉 Reserva efetuada!',
+      error: 'Erro na reserva.'
     }
 },
   EN: {
@@ -77,10 +87,20 @@ const TRANSLATIONS = {
       rights: '© 2026 BazaTicket Engine. All rights reserved.'
     },
     chat: {
-      title: 'Assistente Baza',
-      placeholder: 'Dúvidas sobre ingressos?',
-      welcome: 'Olá! Sou o assistente BazaTicket. Como posso ajudar com sua reserva hoje?',
-      reply: 'Nossa infraestrutura com .NET e Stripe garante que seus ingressos sejam processados com 100% de segurança.'
+      title: 'Baza Assistant',
+      placeholder: 'Help with Tickets?',
+      welcome: 'Hello! I am the BazaTicket assistant. How can I help you with your reservation today?',
+      reply: 'Our infrastructure with .NET and Stripe ensures that your tickets are processed with 100% security.'
+    },
+    checkout: {
+      title: 'Secure Checkout',
+      total: 'Order Total',
+      empty: 'Your cart is empty.',
+      back: 'Back to events',
+      processing: 'Processing...',
+      confirm: 'Confirm Purchase',
+      success: '🎉 Reservation successful!',
+      error: 'Error processing reservation.'
     }
   }
 };
