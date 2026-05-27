@@ -1,19 +1,18 @@
 import { Routes } from '@angular/router';
-
-import { ShellComponent } from './layout/shell.component'; 
+import { ShellComponent } from './layout/shell.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: ShellComponent, 
+    component: ShellComponent,
     children: [
       {
         path: '',
         loadComponent: () => import('./domains/catalog/features/home.component').then(m => m.HomeComponent)
       },
       {
-        path: 'checkout',
-        loadComponent: () => import('./domains/checkout/features/checkout-flow.component').then(m => m.CheckoutFlowComponent)
+        path: 'checkout/success',
+        loadComponent: () => import('./domains/checkout/features/checkout-success.component').then(m => m.CheckoutSuccessComponent)
       }
     ]
   },

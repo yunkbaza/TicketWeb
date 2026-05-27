@@ -1,9 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { CartStore } from '../state/cart.store';
-import { ReservationService } from '../api/reservation.service';
+import { ApiClient } from '../../../core/http/api-client.service';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { AuthService } from '../../../core/auth/auth.service';
 
 @Component({
   selector: 'app-cart-sidebar',
@@ -57,7 +58,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
         <button (click)="handleCheckout()" [disabled]="isProcessing()"
                 class="w-full bg-[#780a43] hover:bg-[#600835] text-white py-4 rounded-xl font-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#780a43]/20 outline-none">
           <svg *ngIf="isProcessing()" class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-          {{ isProcessing() ? (lang.currentLang() === 'PT' ? 'Processando...' : 'Processing...') : (lang.currentLang() === 'PT' ? 'Confirmar Reserva' : 'Confirm Reservation') }}
+          {{ isProcessing() ? (lang.currentLang() === 'PT' ? 'Redirecionando...' : 'Redirecting...') : (lang.currentLang() === 'PT' ? 'Ir para o Pagamento' : 'Proceed to Payment') }}
         </button>
       </div>
     </div>
@@ -66,7 +67,8 @@ import { LanguageService } from '../../../core/i18n/language.service';
 export class CartSidebarComponent {
   public readonly cart = inject(CartStore);
   public readonly lang = inject(LanguageService);
-  private readonly reservationService = inject(ReservationService);
+  private readonly api = inject(ApiClient);
+  private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
 
   public isProcessing = signal(false);
@@ -77,22 +79,27 @@ export class CartSidebarComponent {
 
     this.isProcessing.set(true);
 
-    const payload = {
+    const sessionPayload = {
       eventId: items[0].event.id,
-      quantity: items[0].quantity
+      eventName: items[0].event.name,
+      price: items[0].event.price,
+      quantity: items[0].quantity,
+      userId: this.auth.currentUser()?.id || 'anonymous'
     };
 
-    this.reservationService.reserveTicket(payload).subscribe({
-      next: () => {
-        this.isProcessing.set(false);
-        this.toast.show(this.lang.currentLang() === 'PT' ? '🎉 Reserva efetuada com sucesso!' : '🎉 Reservation successful!');
-        this.cart.clear();
-        this.cart.closeSidebar();
+    // 🔥 Correção: Passando o tipo de retorno {url: string} e o tipo de envio 'any'
+    this.api.post<{ url: string }, any>('/api/payment/create-session', sessionPayload).subscribe({
+      next: (res) => {
+        if (res && res.url) {
+          window.location.href = res.url;
+        } else {
+          this.isProcessing.set(false);
+          this.toast.show('Erro ao carregar checkout do Stripe.');
+        }
       },
-      error: (err) => {
+      error: () => {
         this.isProcessing.set(false);
-        const errorMsg = err.error?.message || (this.lang.currentLang() === 'PT' ? 'Erro ao processar reserva.' : 'Error processing reservation.');
-        this.toast.show(`❌ ${errorMsg}`);
+        this.toast.show('Falha na comunicação com o Gateway de Pagamento.');
       }
     });
   }
