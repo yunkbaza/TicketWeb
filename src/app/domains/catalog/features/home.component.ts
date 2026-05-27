@@ -108,6 +108,11 @@ export class HomeComponent implements OnInit {
       this.toast.show(this.lang.currentLang() === 'PT' ? 'Faça login para continuar.' : 'Please sign in to proceed.');
       return;
     }
-    this.cart.add(event);
+    
+    this.cart.add(event); 
+    
+    // 🔥 FEEDBACK VISUAL IMEDIATO!
+    this.toast.show(this.lang.currentLang() === 'PT' ? '🎟️ Ingresso adicionado ao carrinho!' : '🎟️ Ticket added to cart!');
+     
   }
 }
