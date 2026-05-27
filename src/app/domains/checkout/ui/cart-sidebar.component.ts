@@ -81,25 +81,33 @@ export class CartSidebarComponent {
 
     const sessionPayload = {
       eventId: items[0].event.id,
-      eventName: items[0].event.name,
-      price: items[0].event.price,
+      eventName: items[0].event.name || 'Ingresso Evento',
+      price: items[0].event.price || 50,
       quantity: items[0].quantity,
       userId: this.auth.currentUser()?.id || 'anonymous'
     };
 
-    // 🔥 Correção: Passando o tipo de retorno {url: string} e o tipo de envio 'any'
     this.api.post<{ url: string }, any>('/api/payment/create-session', sessionPayload).subscribe({
       next: (res) => {
         if (res && res.url) {
           window.location.href = res.url;
         } else {
           this.isProcessing.set(false);
-          this.toast.show('Erro ao carregar checkout do Stripe.');
+          this.toast.show('Erro: URL de pagamento inválida.');
         }
       },
-      error: () => {
+      error: (err) => {
         this.isProcessing.set(false);
-        this.toast.show('Falha na comunicação com o Gateway de Pagamento.');
+        
+        let errorMsg = 'Falha ao conectar com o serviço de pagamento.';
+        if (err.error && err.error.message) {
+          errorMsg = err.error.message;
+        } else if (err.message) {
+          errorMsg = err.message;
+        }
+        
+        this.toast.show(`❌ ${errorMsg}`);
+        console.error('[Checkout Error Detalhado]:', err);
       }
     });
   }
