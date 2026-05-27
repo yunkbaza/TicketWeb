@@ -45,15 +45,15 @@ export class CatalogStore {
   }
 
   public loadEvents(): void {
-    if (this.events().length > 0) return; // Cache inteligente
+    if (this.events().length > 0) return;
 
     this.state.update(s => ({ ...s, loading: true }));
     
-    this.api.get<EventTicket[]>('/api/catalog/events')
+    // 🔥 CORREÇÃO CRÍTICA: O contrato com o Gateway/Backend agora é '/api/events'
+    this.api.get<EventTicket[]>('/api/events')
       .pipe(finalize(() => this.state.update(s => ({ ...s, loading: false }))))
       .subscribe({
         next: (events) => {
-          // Fallback de design para preencher o que o backend ainda não manda
           const enrichedEvents = events.map((e, index) => ({
             ...e,
             price: e.price ?? Math.floor(Math.random() * 300) + 50,

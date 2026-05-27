@@ -11,9 +11,7 @@ import { LanguageService } from '../core/i18n/language.service';
       <div class="max-w-[1600px] mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         
         <div>
-          <h2 class="text-2xl font-black tracking-tighter text-slate-950 dark:text-white">
-            BAZA<span class="text-[#780a43]">TICKET</span>
-          </h2>
+          <img src="/Logo_BazaTicket.png" alt="BazaTicket Logo" class="h-12 w-auto mb-4 grayscale hover:grayscale-0 transition-all duration-500 opacity-80 hover:opacity-100 drop-shadow-sm">
           <p class="text-sm text-slate-500 mt-4 leading-relaxed">
             {{ lang.t().footer.desc }}
           </p>

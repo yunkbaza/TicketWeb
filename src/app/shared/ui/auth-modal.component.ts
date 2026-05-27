@@ -1,9 +1,8 @@
-import { Component, EventEmitter, Output, inject, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 import { ToastService } from './toast/toast.service';
-import { LanguageService } from '../../core/i18n/language.service';
 
 @Component({
   selector: 'app-auth-modal',
@@ -41,7 +40,7 @@ import { LanguageService } from '../../core/i18n/language.service';
             </div>
 
             <button type="submit" [disabled]="form.invalid || isProcessing()" 
-                    class="w-full mt-6 bg-[#780a43] text-white font-black py-4 rounded-xl hover:bg-[#600835] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2">
+                    class="w-full mt-6 bg-[#780a43] text-white font-black py-4 rounded-xl hover:bg-[#600835] transition-all disabled:opacity-50 flex justify-center items-center gap-2">
               <svg *ngIf="isProcessing()" class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               {{ isProcessing() ? 'Aguarde...' : (isLoginMode() ? 'Entrar' : 'Registrar') }}
             </button>
@@ -57,21 +56,28 @@ import { LanguageService } from '../../core/i18n/language.service';
     </div>
   `
 })
-export class AuthModalComponent {
+export class AuthModalComponent implements OnInit {
+  // 🔥 NOVO: Recebe o modo inicial do componente pai
+  @Input() mode: 'login' | 'register' = 'login';
   @Output() close = new EventEmitter<void>();
   
   private readonly fb = inject(FormBuilder);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
   
-  public readonly isLoginMode = signal(true);
-  public readonly isProcessing = signal(false);
+  public isLoginMode = signal(true);
+  public isProcessing = signal(false);
 
   form: FormGroup = this.fb.group({
     name: [''],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
+
+  ngOnInit() {
+    // Seta o signal com base na escolha do botão clicado na Navbar
+    this.isLoginMode.set(this.mode === 'login');
+  }
 
   toggleMode() {
     this.isLoginMode.set(!this.isLoginMode());
@@ -83,8 +89,6 @@ export class AuthModalComponent {
     this.isProcessing.set(true);
 
     const data = this.form.value;
-    
-    // 🛠️ CORREÇÃO CRÍTICA AQUI: O .NET espera 'password', não 'passwordHash'
     const request = this.isLoginMode() 
       ? this.authService.login({ email: data.email, password: data.password })
       : this.authService.register({ name: data.name, email: data.email, password: data.password });
@@ -96,7 +100,7 @@ export class AuthModalComponent {
         this.close.emit();
       },
       error: (err) => {
-        this.toast.show(err.error?.message || 'Falha na autenticação. Verifique seus dados.');
+        this.toast.show(err.error?.message || 'Falha na autenticação.');
         this.isProcessing.set(false);
       }
     });
