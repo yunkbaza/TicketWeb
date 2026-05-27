@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; // 🔥 Roteador importado
 import { ThemeService } from '../core/theme/theme.service';
 import { LanguageService } from '../core/i18n/language.service';
 import { CatalogStore } from '../domains/catalog/state/catalog.store';
@@ -19,7 +20,7 @@ import { AuthModalComponent } from '../shared/ui/auth-modal.component';
     <header class="fixed top-0 w-full z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/50 transition-all duration-300">
       <nav class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
         
-        <div class="flex items-center shrink-0 cursor-pointer">
+        <div class="flex items-center shrink-0 cursor-pointer" (click)="goToHome()">
           <img src="/Logo_BazaTicket.png" alt="BazaTicket Logo" class="h-8 md:h-10 w-auto transition-transform hover:scale-105 drop-shadow-sm">
         </div>
         
@@ -46,9 +47,9 @@ import { AuthModalComponent } from '../shared/ui/auth-modal.component';
             <svg *ngIf="theme.isDark()" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
           </button>
 
-          <div class="relative p-2 text-slate-600 dark:text-slate-300 cursor-pointer">
+          <div (click)="goToCheckout()" class="relative p-2 text-slate-600 dark:text-slate-300 cursor-pointer hover:text-[#780a43] transition-colors">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-            <span *ngIf="cart.totalItems() > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#780a43] text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce">
+            <span *ngIf="cart.totalItems() > 0" class="absolute top-0 right-0 w-4 h-4 bg-[#780a43] text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce shadow-md">
               {{ cart.totalItems() }}
             </span>
           </div>
@@ -80,12 +81,26 @@ export class NavbarComponent {
   protected readonly catalog = inject(CatalogStore);
   protected readonly cart = inject(CartStore);
   public readonly auth = inject(AuthService);
+  
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router); // 🔥 Injetado Roteador
 
   public readonly showAuthModal = signal(false);
   public readonly authMode = signal<'login' | 'register'>('login');
 
-  // Método que configura o modal antes de abri-lo
+  protected goToHome() {
+    this.router.navigate(['/']);
+  }
+
+  // 🔥 A MÁGICA DO CARRINHO AQUI
+  protected goToCheckout() {
+    if (this.cart.totalItems() > 0) {
+      this.router.navigate(['/checkout']);
+    } else {
+      this.toast.show(this.lang.currentLang() === 'PT' ? 'Seu carrinho está vazio!' : 'Your cart is empty!');
+    }
+  }
+
   protected openAuthModal(mode: 'login' | 'register') {
     this.authMode.set(mode);
     this.showAuthModal.set(true);
@@ -94,5 +109,6 @@ export class NavbarComponent {
   protected handleLogout() {
     this.auth.logout();
     this.toast.show(this.lang.currentLang() === 'PT' ? 'Você saiu da conta.' : 'You logged out.');
+    this.goToHome();
   }
 }
