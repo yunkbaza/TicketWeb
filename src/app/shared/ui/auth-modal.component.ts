@@ -68,7 +68,7 @@ export class AuthModalComponent {
   public readonly isProcessing = signal(false);
 
   form: FormGroup = this.fb.group({
-    name: [''], // Só exigido no registro
+    name: [''],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]]
   });
@@ -83,9 +83,11 @@ export class AuthModalComponent {
     this.isProcessing.set(true);
 
     const data = this.form.value;
+    
+    // 🛠️ CORREÇÃO CRÍTICA AQUI: O .NET espera 'password', não 'passwordHash'
     const request = this.isLoginMode() 
-      ? this.authService.login({ email: data.email, passwordHash: data.password })
-      : this.authService.register({ name: data.name, email: data.email, passwordHash: data.password });
+      ? this.authService.login({ email: data.email, password: data.password })
+      : this.authService.register({ name: data.name, email: data.email, password: data.password });
 
     request.subscribe({
       next: () => {
