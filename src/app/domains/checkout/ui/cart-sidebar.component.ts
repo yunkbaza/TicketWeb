@@ -11,10 +11,7 @@ import { AuthService } from '../../../core/auth/auth.service';
   standalone: true,
   imports: [CommonModule, CurrencyPipe],
   template: `
-    <div *ngIf="cart.isSidebarOpen()" 
-         (click)="cart.closeSidebar()"
-         class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[190] transition-opacity duration-300 animate-fade-in">
-    </div>
+    <div *ngIf="cart.isSidebarOpen()" (click)="cart.closeSidebar()" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[190] transition-opacity duration-300 animate-fade-in"></div>
 
     <div class="fixed inset-y-0 right-0 z-[200] w-full md:w-[450px] bg-white dark:bg-slate-950 shadow-2xl border-l border-slate-200 dark:border-slate-800 transform transition-transform duration-300 flex flex-col"
          [ngClass]="cart.isSidebarOpen() ? 'translate-x-0' : 'translate-x-full'">
@@ -51,14 +48,14 @@ import { AuthService } from '../../../core/auth/auth.service';
 
       <div *ngIf="cart.items().length > 0" class="p-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
         <div class="flex justify-between items-end mb-6">
-          <span class="text-xs font-bold uppercase tracking-widest text-slate-500">{{ lang.currentLang() === 'PT' ? 'Total a Pagar' : 'Total' }}</span>
+          <span class="text-xs font-bold uppercase tracking-widest text-slate-500">{{ lang.currentLang() === 'PT' ? 'Total' : 'Total' }}</span>
           <span class="text-3xl font-black text-slate-900 dark:text-white">{{ cart.totalPrice() | currency:'BRL' }}</span>
         </div>
 
         <button (click)="handleCheckout()" [disabled]="isProcessing()"
                 class="w-full bg-[#780a43] hover:bg-[#600835] text-white py-4 rounded-xl font-black transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#780a43]/20 outline-none">
           <svg *ngIf="isProcessing()" class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-          {{ isProcessing() ? (lang.currentLang() === 'PT' ? 'Redirecionando...' : 'Redirecting...') : (lang.currentLang() === 'PT' ? 'Ir para o Pagamento' : 'Proceed to Payment') }}
+          {{ isProcessing() ? (lang.currentLang() === 'PT' ? 'Redirecionando Stripe...' : 'Redirecting...') : (lang.currentLang() === 'PT' ? 'Ir para o Pagamento' : 'Proceed to Payment') }}
         </button>
       </div>
     </div>
@@ -77,37 +74,33 @@ export class CartSidebarComponent {
     const items = this.cart.items();
     if (items.length === 0) return;
 
+    console.log('🚀 [Checkout] Iniciando contato com o Gateway...');
     this.isProcessing.set(true);
 
     const sessionPayload = {
       eventId: items[0].event.id,
-      eventName: items[0].event.name || 'Ingresso Evento',
+      eventName: items[0].event.name || 'Ingresso VIP',
       price: items[0].event.price || 50,
       quantity: items[0].quantity,
       userId: this.auth.currentUser()?.id || 'anonymous'
     };
 
+    // Comunicação com o Gateway que fará a ponte para o PaymentService
     this.api.post<{ url: string }, any>('/api/payment/create-session', sessionPayload).subscribe({
       next: (res) => {
+        console.log('✅ [Checkout] Sucesso! Redirecionando para Stripe:', res.url);
         if (res && res.url) {
           window.location.href = res.url;
         } else {
           this.isProcessing.set(false);
-          this.toast.show('Erro: URL de pagamento inválida.');
+          this.toast.show(this.lang.currentLang() === 'PT' ? 'Erro: O servidor não retornou o link de pagamento.' : 'Error: No payment link returned.');
         }
       },
       error: (err) => {
         this.isProcessing.set(false);
-        
-        let errorMsg = 'Falha ao conectar com o serviço de pagamento.';
-        if (err.error && err.error.message) {
-          errorMsg = err.error.message;
-        } else if (err.message) {
-          errorMsg = err.message;
-        }
-        
-        this.toast.show(`❌ ${errorMsg}`);
-        console.error('[Checkout Error Detalhado]:', err);
+        console.error('❌ [Checkout Error]:', err);
+        const serverMessage = err.error?.message || (this.lang.currentLang() === 'PT' ? 'Falha na comunicação com o Gateway de Pagamento.' : 'Payment Gateway communication failed.');
+        this.toast.show(`❌ ${serverMessage}`);
       }
     });
   }
