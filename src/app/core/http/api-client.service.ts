@@ -15,4 +15,7 @@ export class ApiClient {
   post<T, D>(endpoint: string, data: D, headers?: HttpHeaders): Observable<T> {
     return this.http.post<T>(`${this.baseUrl}${endpoint}`, data, { headers });
   }
+  public delete<T>(url: string) {
+    return this.http.delete<T>(url);
+  }
 }

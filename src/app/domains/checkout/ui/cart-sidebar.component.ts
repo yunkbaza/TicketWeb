@@ -5,6 +5,7 @@ import { ApiClient } from '../../../core/http/api-client.service';
 import { ToastService } from '../../../shared/ui/toast/toast.service';
 import { LanguageService } from '../../../core/i18n/language.service';
 import { AuthService } from '../../../core/auth/auth.service';
+import { ReservationService } from '../api/reservation.service';
 
 @Component({
   selector: 'app-cart-sidebar',
@@ -67,6 +68,7 @@ export class CartSidebarComponent {
   private readonly api = inject(ApiClient);
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
+  private readonly reservationService = inject(ReservationService);
 
   public isProcessing = signal(false);
 
@@ -74,33 +76,52 @@ export class CartSidebarComponent {
     const items = this.cart.items();
     if (items.length === 0) return;
 
-    console.log('🚀 [Checkout] Iniciando contato com o Gateway...');
+    console.log('🔒 [SAGA] Iniciando Lock de Inventário...');
     this.isProcessing.set(true);
 
-    const sessionPayload = {
+    const reservationPayload = {
       eventId: items[0].event.id,
-      eventName: items[0].event.name || 'Ingresso VIP',
-      price: items[0].event.price || 50,
-      quantity: items[0].quantity,
-      userId: this.auth.currentUser()?.id || 'anonymous'
+      quantity: items[0].quantity
     };
 
-    // Comunicação com o Gateway que fará a ponte para o PaymentService
-    this.api.post<{ url: string }, any>('/api/payment/create-session', sessionPayload).subscribe({
-      next: (res) => {
-        console.log('✅ [Checkout] Sucesso! Redirecionando para Stripe:', res.url);
-        if (res && res.url) {
-          window.location.href = res.url;
-        } else {
-          this.isProcessing.set(false);
-          this.toast.show(this.lang.currentLang() === 'PT' ? 'Erro: O servidor não retornou o link de pagamento.' : 'Error: No payment link returned.');
-        }
+    // 1️⃣ PRIMEIRO PASSO: Garante a reserva no Banco de Dados (Inventory Hold)
+    this.reservationService.reserveTicket(reservationPayload).subscribe({
+      next: (res: any) => {
+        console.log('✅ [SAGA] Ingresso reservado no banco! Order ID:', res.orderId);
+        
+        // 2️⃣ SEGUNDO PASSO: Com o ingresso garantido, pedimos a tela do Stripe
+        const sessionPayload = {
+          eventId: items[0].event.id,
+          eventName: items[0].event.name || 'Ingresso VIP',
+          price: items[0].event.price || 50,
+          quantity: items[0].quantity,
+          userId: this.auth.currentUser()?.id || 'anonymous',
+          orderId: res.orderId // Enviamos a OrderId gerada para atrelar ao pagamento
+        };
+
+        this.api.post<{ url: string }, any>('/api/payment/create-session', sessionPayload).subscribe({
+          next: (stripeRes) => {
+            console.log('✅ [Checkout] Sucesso! Redirecionando para Stripe:', stripeRes.url);
+            if (stripeRes && stripeRes.url) {
+              window.location.href = stripeRes.url; 
+            } else {
+              this.isProcessing.set(false);
+              this.toast.show(this.lang.currentLang() === 'PT' ? 'Erro: O servidor não retornou o link.' : 'Error: No payment link returned.');
+            }
+          },
+          error: (err) => {
+            this.isProcessing.set(false);
+            console.error('❌ [Stripe Error]:', err);
+            const serverMessage = err.error?.message || 'Falha de comunicação com o Gateway de Pagamento.';
+            this.toast.show(`❌ ${serverMessage}`);
+          }
+        });
       },
       error: (err) => {
         this.isProcessing.set(false);
-        console.error('❌ [Checkout Error]:', err);
-        const serverMessage = err.error?.message || (this.lang.currentLang() === 'PT' ? 'Falha na comunicação com o Gateway de Pagamento.' : 'Payment Gateway communication failed.');
-        this.toast.show(`❌ ${serverMessage}`);
+        console.error('❌ [Reservation Error]:', err);
+        const outOfStockMsg = this.lang.currentLang() === 'PT' ? '❌ Este ingresso esgotou enquanto você estava na fila!' : '❌ Ticket sold out while waiting!';
+        this.toast.show(err.error?.message ? `❌ ${err.error.message}` : outOfStockMsg);
       }
     });
   }

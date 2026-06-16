@@ -13,6 +13,10 @@ export const routes: Routes = [
       {
         path: 'checkout/success',
         loadComponent: () => import('./domains/checkout/features/checkout-success.component').then(m => m.CheckoutSuccessComponent)
+      },
+      {
+        path: 'checkout/cancel',
+        loadComponent: () => import('./domains/checkout/features/checkout-cancel.component').then(m => m.CheckoutCancelComponent)
       }
     ]
   },
