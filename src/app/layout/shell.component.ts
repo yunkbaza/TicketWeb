@@ -7,6 +7,7 @@ import { ChatBotComponent } from '../shared/ui/chat-bot.component';
 import { CartSidebarComponent } from '../domains/checkout/ui/cart-sidebar.component';
 import { AuthModalComponent } from '../shared/ui/auth-modal.component';
 import { AuthService } from '../core/auth/auth.service';
+import { SignalRService } from '../core/signalr/signalr.service';
 
 @Component({
   selector: 'app-shell',
@@ -41,4 +42,5 @@ import { AuthService } from '../core/auth/auth.service';
 export class ShellComponent {
   // Injetamos o AuthService para o HTML conseguir ler e alterar o estado do Modal
   public auth = inject(AuthService);
+  private readonly signalR = inject(SignalRService);
 }
