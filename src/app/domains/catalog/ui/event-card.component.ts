@@ -1,6 +1,8 @@
-import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject, effect, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EventTicket } from '../models/event-ticket.model';
+import { CartStore } from '../../checkout/state/cart.store';
+import { SignalRService } from '../../../core/signalr/signalr.service';
 
 @Component({
   selector: 'app-event-card',
@@ -21,7 +23,7 @@ import { EventTicket } from '../models/event-ticket.model';
           {{ event.category }}
         </div>
         
-        <div *ngIf="event.isSoldOut" class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm z-20 flex items-center justify-center">
+        <div *ngIf="event.availableTickets === 0 || event.isSoldOut" class="absolute inset-0 bg-slate-950/70 backdrop-blur-sm z-20 flex items-center justify-center animate-fade-in">
           <span class="bg-red-600 text-white font-black px-6 py-2 rounded-xl text-lg uppercase tracking-widest shadow-2xl border border-red-500 -rotate-6">Esgotado</span>
         </div>
       </div>
@@ -40,12 +42,22 @@ import { EventTicket } from '../models/event-ticket.model';
             <span class="text-xl font-black text-slate-900 dark:text-white" [attr.aria-label]="'Preço do ingresso: ' + event.price + ' reais'">R$ {{ event.price }},00</span>
           </div>
           
-          <button (click)="actionClick.emit(event)" 
-                  [disabled]="event.isSoldOut"
-                  [attr.aria-label]="event.isSoldOut ? 'Ingressos esgotados para ' + event.name : 'Comprar ingresso para ' + event.name"
-                  class="w-12 h-12 bg-rose-50 dark:bg-slate-800 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-4 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 group-hover:shadow-lg group-hover:shadow-rose-600/20">
-            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
-          </button>
+          <div class="flex items-center gap-3">
+            <div *ngIf="event.availableTickets > 0" class="flex flex-col items-end text-right">
+              <span class="text-[9px] uppercase font-black tracking-widest text-slate-400">Restam</span>
+              <span class="text-sm font-black transition-colors duration-500" 
+                    [ngClass]="event.availableTickets <= 10 ? 'text-rose-500 animate-pulse' : 'text-emerald-500'">
+                {{ event.availableTickets }}
+              </span>
+            </div>
+
+            <button (click)="addToCart()" 
+                    [disabled]="event.availableTickets === 0 || event.isSoldOut"
+                    [attr.aria-label]="event.availableTickets === 0 ? 'Ingressos esgotados para ' + event.name : 'Comprar ingresso para ' + event.name"
+                    class="w-12 h-12 bg-rose-50 dark:bg-slate-800 text-rose-600 rounded-xl flex items-center justify-center hover:bg-rose-600 hover:text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed outline-none focus-visible:ring-4 focus-visible:ring-rose-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 group-hover:shadow-lg group-hover:shadow-rose-600/20 active:scale-95">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+            </button>
+          </div>
         </div>
       </div>
     </article>
@@ -53,7 +65,32 @@ import { EventTicket } from '../models/event-ticket.model';
 })
 export class EventCardComponent {
   @Input({ required: true }) event!: EventTicket;
-  @Output() actionClick = new EventEmitter<EventTicket>();
+  @Output() actionClick = new EventEmitter<EventTicket>(); // Mantido caso o ecrã pai precise
+
+  private readonly cart = inject(CartStore);
+  private readonly signalr = inject(SignalRService, { optional: true });
+  private readonly cdr = inject(ChangeDetectorRef);
+
+  constructor() {
+    // 🔥 O Angular reage imediatamente a mensagens que chegam do WebSockets
+    effect(() => {
+      const update = this.signalr?.liveStockUpdates();
+      if (update && update.eventId === this.event.id) {
+        this.event.availableTickets = update.available;
+        this.event.isSoldOut = update.available === 0;
+        
+        // 🚨 CRÍTICO: Avisa o Angular para repintar este Card específico (porque estamos a usar OnPush)
+        this.cdr.markForCheck(); 
+      }
+    });
+  }
+
+  // Interação de Compra Centralizada
+  addToCart() {
+    this.cart.add(this.event);
+    this.cart.openSidebar();
+    this.actionClick.emit(this.event);
+  }
 
   getImagem(category: string): string {
     const maps: Record<string, string> = {
