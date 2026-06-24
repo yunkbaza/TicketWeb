@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // 🔥 Roteador importado
+import { Router } from '@angular/router'; 
 import { ThemeService } from '../core/theme/theme.service';
 import { LanguageService } from '../core/i18n/language.service';
 import { CatalogStore } from '../domains/catalog/state/catalog.store';
@@ -15,7 +15,6 @@ import { AuthModalComponent } from '../shared/ui/auth-modal.component';
   standalone: true,
   imports: [CommonModule, FormsModule, AuthModalComponent],
   template: `
-    <app-auth-modal *ngIf="showAuthModal()" [mode]="authMode()" (close)="showAuthModal.set(false)"></app-auth-modal>
 
     <header class="fixed top-0 w-full z-50 bg-white/90 dark:bg-slate-950/80 backdrop-blur-xl border-b border-slate-200/60 dark:border-slate-800/50 transition-all duration-300">
       <nav class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between gap-6">
